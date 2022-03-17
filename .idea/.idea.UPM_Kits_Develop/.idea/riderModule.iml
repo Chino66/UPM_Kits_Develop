@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<module type="RIDER_MODULE" version="4">
+  <component name="NewModuleRootManager">
+    <content url="file://$MODULE_DIR$/../.." />
+    <content url="file://$MODULE_DIR$/../../../../UnityProject/Command_Tool_Develop/Assets/_package_" />
+    <content url="file://$MODULE_DIR$/../../../../UnityProject/Object_Pool_Develop/Assets/_package_" />
+    <content url="file://$MODULE_DIR$/../../../../UnityProject/Task_Kits_Develop/Assets/_package_" />
+    <content url="file://$MODULE_DIR$/../../../../UnityProject/UIElements_Kits_Develop/Assets/_package_" />
+    <orderEntry type="sourceFolder" forTests="false" />
+  </component>
+</module>

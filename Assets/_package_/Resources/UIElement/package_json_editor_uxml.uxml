@@ -1,0 +1,34 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="uss.uss" />
+    <ui:VisualElement name="operate_ve" style="display: none;">
+        <ui:Button text="Refresh" display-tooltip-when-elided="true" name="refresh_btn" />
+    </ui:VisualElement>
+    <ui:VisualElement name="list_root" style="background-color: rgb(41, 41, 41); display: none;">
+        <ui:VisualElement name="list_title_ev" class="unity-box" style="background-color: rgb(41, 41, 41);">
+            <ui:Label text="Package List" display-tooltip-when-elided="true" name="list_lab" style="-unity-font-style: bold; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; border-left-color: rgb(135, 135, 135); border-right-color: rgb(135, 135, 135); border-top-color: rgb(135, 135, 135); border-bottom-color: rgb(135, 135, 135); border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; background-color: rgba(56, 56, 56, 0);" />
+        </ui:VisualElement>
+        <ui:VisualElement name="list_ev" class="unity-box" style="background-color: rgb(51, 51, 51);">
+            <ui:ScrollView name="item_list_sv" style="max-height: 320px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="version_root" style="display: none;">
+        <ui:VisualElement name="version_title_ev" class="unity-box" style="background-color: rgb(41, 41, 41);">
+            <ui:Label text="versions lab" display-tooltip-when-elided="true" name="versions_lab" style="-unity-font-style: bold; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; border-left-color: rgb(135, 135, 135); border-right-color: rgb(135, 135, 135); border-top-color: rgb(135, 135, 135); border-bottom-color: rgb(135, 135, 135); border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; background-color: rgba(56, 56, 56, 0);" />
+        </ui:VisualElement>
+        <ui:VisualElement name="version_ev" class="unity-box" style="background-color: rgb(51, 51, 51);">
+            <ui:ScrollView name="version_list_sv" style="max-height: 320px;" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+    <ui:VisualElement name="developer_root">
+        <ui:VisualElement name="developer_title_ev" class="unity-box row" style="background-color: rgb(41, 41, 41);">
+            <ui:Label text="current developer" display-tooltip-when-elided="true" style="-unity-font-style: bold; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; border-left-color: rgb(135, 135, 135); border-right-color: rgb(135, 135, 135); border-top-color: rgb(135, 135, 135); border-bottom-color: rgb(135, 135, 135); border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; background-color: rgba(56, 56, 56, 0); flex-shrink: 1; flex-grow: 0; width: auto;" />
+            <ui:Label text="chino66" display-tooltip-when-elided="true" name="developer_name" style="-unity-font-style: bold; border-left-width: 0; border-right-width: 0; border-top-width: 1px; border-bottom-width: 1px; border-left-color: rgb(135, 135, 135); border-right-color: rgb(135, 135, 135); border-top-color: rgb(135, 135, 135); border-bottom-color: rgb(135, 135, 135); border-top-left-radius: 3px; border-bottom-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; background-color: rgba(56, 56, 56, 0); width: auto; flex-shrink: 1; flex-grow: 0;" />
+            <ui:Button text="select" display-tooltip-when-elided="true" name="select_developer" style="width: auto; flex-shrink: 1; flex-grow: 0; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; background-color: rgba(88, 88, 88, 0); flex-direction: column; right: 0; left: auto; position: absolute;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="developer_select_ev" class="unity-box" style="background-color: rgb(51, 51, 51);">
+            <ui:ScrollView name="developer_list_sv" style="max-height: 320px; display: flex;">
+                <ui:Button text="Button" display-tooltip-when-elided="true" />
+            </ui:ScrollView>
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>

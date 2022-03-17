@@ -1,0 +1,13 @@
+# Default ignored files
+/shelf/
+/workspace.xml
+# Rider ignored files
+/modules.xml
+/contentModel.xml
+/projectSettingsUpdater.xml
+/.idea.UPM_Kits_Develop.iml
+# Datasource local storage ignored files
+/../../../../../../:\Github\UPM_Kits_Develop\.idea\.idea.UPM_Kits_Develop\.idea/dataSources/
+/dataSources.local.xml
+# Editor-based HTTP Client requests
+/httpRequests/

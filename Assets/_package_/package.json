@@ -1,0 +1,8 @@
+{
+  "name": "com.chino.upm.list",
+  "displayName": "UPM List",
+  "version": "0.0.1",
+  "unity": "2019.1",
+  "description": "展示和管理在github packages托管的npm注册表的包",
+  "type": "tool"
+}

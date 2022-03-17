@@ -1,0 +1,19 @@
+<ui:UXML xmlns:ui="UnityEngine.UIElements" xmlns:uie="UnityEditor.UIElements" editor-extension-mode="False">
+    <Style src="uss.uss" />
+    <ui:VisualElement name="detail_root">
+        <ui:VisualElement name="detail_title_ev" class="unity-box row" style="background-color: rgb(41, 41, 41);">
+            <ui:Label text="Package Detail" display-tooltip-when-elided="true" name="detail_title_lab" style="-unity-font-style: bold; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; border-left-color: rgb(135, 135, 135); border-right-color: rgb(135, 135, 135); border-top-color: rgb(135, 135, 135); border-bottom-color: rgb(135, 135, 135); border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; background-color: rgba(56, 56, 56, 0);" />
+            <ui:VisualElement name="operation" class="row">
+                <ui:Box name="operation_remove" class="row" style="width: 30px; flex-direction: row; justify-content: flex-start; align-items: stretch; position: relative; left: auto; right: auto; flex-basis: auto; flex-wrap: nowrap; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-top-left-radius: 3px; border-bottom-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-left-color: rgba(128, 128, 128, 0.5); border-right-color: rgba(128, 128, 128, 0.5); border-top-color: rgba(128, 128, 128, 0.5); border-bottom-color: rgba(128, 128, 128, 0.5); background-color: rgba(140, 140, 140, 0);">
+                    <ui:Button text="×" name="operation_remove_btn" style="width: auto; flex-direction: row-reverse; justify-content: flex-start; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 2px; padding-bottom: 2px; background-color: rgba(228, 228, 228, 0); border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; font-size: 16px; -unity-font-style: bold; color: rgb(255, 51, 15); display: flex;" />
+                </ui:Box>
+                <ui:Box name="operation_add" class="row" style="width: 30px; flex-direction: row; justify-content: flex-start; align-items: stretch; position: relative; left: auto; right: auto; flex-basis: auto; flex-wrap: nowrap; border-left-width: 1px; border-right-width: 1px; border-top-width: 1px; border-bottom-width: 1px; border-top-left-radius: 3px; border-bottom-left-radius: 3px; border-top-right-radius: 3px; border-bottom-right-radius: 3px; border-left-color: rgba(128, 128, 128, 0.5); border-right-color: rgba(128, 128, 128, 0.5); border-top-color: rgba(128, 128, 128, 0.5); border-bottom-color: rgba(128, 128, 128, 0.5); background-color: rgba(140, 140, 140, 0);">
+                    <ui:Button text="+" name="operation_add_btn" style="width: auto; flex-direction: row-reverse; justify-content: flex-start; margin-left: 0; margin-right: 0; margin-top: 0; margin-bottom: 0; padding-left: 0; padding-right: 0; padding-top: 2px; padding-bottom: 2px; background-color: rgba(228, 228, 228, 0); border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; font-size: 16px; -unity-font-style: bold; display: flex;" />
+                </ui:Box>
+            </ui:VisualElement>
+        </ui:VisualElement>
+        <ui:VisualElement name="detail_content_ev" class="unity-box">
+            <ui:Label display-tooltip-when-elided="true" name="detail_content_lab" />
+        </ui:VisualElement>
+    </ui:VisualElement>
+</ui:UXML>
