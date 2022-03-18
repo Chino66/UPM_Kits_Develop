@@ -1,8 +1,37 @@
 {
-  "name": "com.chino.upm.list",
-  "displayName": "UPM List",
-  "version": "0.0.1",
-  "unity": "2019.1",
-  "description": "展示和管理在github packages托管的npm注册表的包",
-  "type": "tool"
+  "name": "com.chino.object.pool",
+  "displayName": "Object Pool",
+  "version": "0.0.2",
+  "unity": "2020.1",
+  "description": "对象池工具包",
+  "type": "library",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Chino66/Object_Pool_Develop.git"
+  },
+  "dependencies": {
+    "com.unity.modules.director": "1.0.0",
+    "com.unity.modules.animation": "1.0.0",
+    "com.unity.modules.audio": "1.0.0",
+    "com.unity.modules.particlesystem": "1.0.0"
+  },
+  "author": "chino6",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Chino66/Object_Pool_Develop/issues"
+  },
+  "homepage": "https://github.com/Chino66/Object_Pool_Develop#readme",
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com/@chino66"
+  },
+  "other": "xxxxxxxxxxxxxxxx",
+  "other2": "xxxxxxxxxxxxxxxx22",
+  "list": [
+    "ss",
+    "ss"
+  ]
 }
