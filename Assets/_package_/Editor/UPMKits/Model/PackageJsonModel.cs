@@ -1,3 +1,4 @@
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -23,8 +24,15 @@ namespace UPMKits
         public string registry;
     }
 
+    [Serializable]
+    public class Dependency
+    {
+        public string key;
+        public string value;
+    }
 
-    public class PackageJsonInfo
+
+    public class PackageJsonInfo : ScriptableObject
     {
         public string name;
         public string displayName;
@@ -40,6 +48,9 @@ namespace UPMKits
         public PublishConfig publishConfig;
         public Dictionary<string, string> dependencies;
 
+        [JsonIgnore]
+        public List<Dependency> DependencyList;
+
         public override string ToString()
         {
             var context = new StringBuilder();
@@ -52,43 +63,13 @@ namespace UPMKits
             context.Append(author).Append("\n");
             context.Append(license).Append("\n");
             context.Append(homepage).Append("\n");
-            if (repository != null)
+            context.Append(repository.url).Append("\n");
+            context.Append(bugs.url).Append("\n");
+            context.Append(publishConfig.registry).Append("\n");
+            context.Append("dependencies").Append("\n");
+            foreach (var dependency in dependencies)
             {
-                context.Append(repository.url).Append("\n");
-            }
-            else
-            {
-                context.Append("repository is null").Append("\n");
-            }
-
-            if (bugs != null)
-            {
-                context.Append(bugs.url).Append("\n");
-            }
-            else
-            {
-                context.Append("bugs is null").Append("\n");
-            }
-
-            if (publishConfig != null)
-            {
-                context.Append(publishConfig.registry).Append("\n");
-            }
-            else
-            {
-                context.Append("publishConfig is null").Append("\n");
-            }
-
-            if (dependencies != null)
-            {
-                foreach (var dependency in dependencies)
-                {
-                    context.Append("  ").Append(dependency.Key).Append("-").Append(dependency.Value).Append("\n");
-                }
-            }
-            else
-            {
-                context.Append("dependencies is null").Append("\n");
+                context.Append("  ").Append(dependency.Key).Append(":").Append(dependency.Value).Append("\n");
             }
 
             return context.ToString();
@@ -99,8 +80,7 @@ namespace UPMKits
     {
         public const string PackageJsonPath = "Assets/_package_/package.json";
 
-
-        private PackageJsonInfo _packageJsonInfo;
+        public PackageJsonInfo PackageJsonInfo { get; private set; }
 
         public PackageJsonModel()
         {
@@ -110,14 +90,29 @@ namespace UPMKits
         private void Load()
         {
             var json = File.ReadAllText(PackageJsonPath);
-            _packageJsonInfo = JsonConvert.DeserializeObject<PackageJsonInfo>(json) ?? new PackageJsonInfo();
+            PackageJsonInfo = JsonConvert.DeserializeObject<PackageJsonInfo>(json) ?? new PackageJsonInfo();
+
+            // 使用SerializedObject与UIElements进行数据绑定,但SerializedObject不支持Dictionary,所以需要额外将Dictionary转成List
+            PackageJsonInfo.DependencyList = new List<Dependency>();
+            foreach (var pair in PackageJsonInfo.dependencies)
+            {
+                var dependency = new Dependency {key = pair.Key, value = pair.Value};
+                PackageJsonInfo.DependencyList.Add(dependency);
+            }
         }
 
-        private void Save()
+        public void Save()
         {
+            PackageJsonInfo.dependencies.Clear();
+            foreach (var dependency in PackageJsonInfo.DependencyList)
+            {
+                PackageJsonInfo.dependencies.Add(dependency.key, dependency.value);
+            }
+
             var json = File.ReadAllText(PackageJsonPath);
-            var jToken = JToken.FromObject(_packageJsonInfo);
+            var jToken = JToken.FromObject(PackageJsonInfo);
             var jObject = JsonConvert.DeserializeObject<JObject>(json);
+            jObject["dependencies"] = null;
             jObject.Merge(jToken);
 
             var setting = new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore};
