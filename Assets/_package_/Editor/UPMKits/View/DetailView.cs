@@ -22,6 +22,8 @@ namespace UPMKits
 
         private SerializedObject packageJson;
 
+        private Label _noTip;
+
         protected override void OnInitialize(VisualElement parent)
         {
             var temp = parent.Q("package_json_root");
@@ -34,10 +36,10 @@ namespace UPMKits
             _pool = new VisualElementPool(itemAsset);
             _pool.SetGetAction(element =>
             {
-                var key = element.Q<TextField>("key");
-                key.bindingPath = "key";
-                var value = element.Q<TextField>("value");
-                value.bindingPath = "value";
+                var textField = element.Q<TextField>("key");
+                textField.bindingPath = "key";
+                textField = element.Q<TextField>("value");
+                textField.bindingPath = "value";
             });
 
             _pool.SetReturnAction(element =>
@@ -49,6 +51,8 @@ namespace UPMKits
                 textField.value = "";
                 textField.Unbind();
             });
+
+            _noTip = _cache.Get<Label>("no_tip");
 
             var textField = _cache.Get("name_box").Q<TextField>();
             textField.bindingPath = "name";
@@ -64,6 +68,7 @@ namespace UPMKits
 
             textField = _cache.Get("description_box").Q<TextField>();
             textField.bindingPath = "description";
+            textField.multiline = true;
 
             textField = _cache.Get("type_box").Q<TextField>();
             textField.bindingPath = "type";
@@ -76,64 +81,85 @@ namespace UPMKits
 
             _dependenciesList = _cache.Get("dependencies_list").Q("items");
 
-            packageJson = new SerializedObject(context.PackageJsonModel.PackageJsonInfo);
-            Self.Bind(packageJson);
-
-            var dependencies = packageJson.FindProperty("DependencyList");
-
-            for (int i = 0; i < dependencies.arraySize; i++)
-            {
-                var ele = _pool.Get();
-                var key = ele.Q<TextField>("key");
-                var value = ele.Q<TextField>("value");
-                _dependenciesList.Add(ele);
-
-                var dependency = dependencies.GetArrayElementAtIndex(i);
-                var property = dependency.FindPropertyRelative("key");
-                key.BindProperty(property);
-                property = dependency.FindPropertyRelative("value");
-                value.BindProperty(property);
-            }
-
             var addBtn = _cache.Get<Button>("add_btn");
-            addBtn.clicked += () => { AddDependency(); };
+            addBtn.clicked += () =>
+            {
+                AddDependency();
+                RefreshNoTip();
+            };
 
             var removeBtn = _cache.Get<Button>("remove_btn");
-            removeBtn.clicked += () => { RemoveDependency(); };
+            removeBtn.clicked += () =>
+            {
+                RemoveDependency();
+                RefreshNoTip();
+            };
 
             var applyBtn = _cache.Get<Button>("apply_btn");
             applyBtn.clicked += () => { context.PackageJsonModel.Save(); };
 
+            var revertBtn = _cache.Get<Button>("revert_btn");
+            revertBtn.clicked += () =>
+            {
+                context.PackageJsonModel.Revert();
+                Refresh();
+            };
+
+            var view = _cache.Get<Button>("view_package_json");
+            view.clicked += () => { EditorUtility.RevealInFinder(PackageJsonModel.PackageJsonPath); };
+
             // var btn = new Button();
             // btn.text = "test";
             // Self.Add(btn);
-            // btn.clicked += () =>
-            // {
-            //     context.PackageJsonModel.PackageJsonInfo.name = "66";
-            //
-            //     context.PackageJsonModel.PackageJsonInfo.DependencyList[0].key += "666";
-            //     
-            //     Debug.Log(context.PackageJsonModel.PackageJsonInfo.ToString());
-            // };
+            // btn.clicked += () => { Debug.Log(context.NpmrcModel.HasLocalNpmrc()); };
+
+            Refresh();
         }
 
         public void Refresh()
         {
+            while (_dependenciesList.childCount > 0)
+            {
+                var item = _dependenciesList.ElementAt(0);
+                Debug.Log($"{item.Q<TextField>("key").text}");
+                _pool.Return(item);
+                _dependenciesList.RemoveAt(0);
+            }
+
+            Self.Unbind();
+            packageJson = new SerializedObject(context.PackageJsonModel.PackageJsonInfo);
+            Self.Bind(packageJson);
+            var dependencies = packageJson.FindProperty("DependencyList");
+            for (int i = 0; i < dependencies.arraySize; i++)
+            {
+                NewDependency(dependencies, i);
+            }
+
+            RefreshNoTip();
         }
+
 
         private void AddDependency()
         {
             context.PackageJsonModel.PackageJsonInfo.DependencyList.Add(new Dependency());
+            packageJson.Update();
+            var dependencies = packageJson.FindProperty("DependencyList");
 
+            NewDependency(dependencies, dependencies.arraySize - 1);
+        }
+
+        private void NewDependency(SerializedProperty dependencies, int index)
+        {
             var element = _pool.Get();
+            _dependenciesList.Add(element);
+            var dependency = dependencies.GetArrayElementAtIndex(index);
+            BindDependency(element, dependency);
+        }
+
+        private void BindDependency(VisualElement element, SerializedProperty dependency)
+        {
             var key = element.Q<TextField>("key");
             var value = element.Q<TextField>("value");
-            _dependenciesList.Add(element);
-
-            packageJson.Update();
-
-            var dependencies = packageJson.FindProperty("DependencyList");
-            var dependency = dependencies.GetArrayElementAtIndex(dependencies.arraySize - 1);
             var property = dependency.FindPropertyRelative("key");
             key.BindProperty(property);
             property = dependency.FindPropertyRelative("value");
@@ -146,11 +172,16 @@ namespace UPMKits
             var lastIndex = list.Count - 1;
             list.RemoveAt(lastIndex);
 
+            packageJson.Update();
+
             var item = _dependenciesList.ElementAt(lastIndex);
             _pool.Return(item);
             _dependenciesList.RemoveAt(lastIndex);
+        }
 
-            packageJson.Update();
+        private void RefreshNoTip()
+        {
+            _noTip.SetDisplay(_dependenciesList.childCount <= 0);
         }
     }
 }

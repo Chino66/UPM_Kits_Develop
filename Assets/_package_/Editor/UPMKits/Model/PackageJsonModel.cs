@@ -101,6 +101,11 @@ namespace UPMKits
             }
         }
 
+        public void Revert()
+        {
+            Load();
+        }
+
         public void Save()
         {
             PackageJsonInfo.dependencies.Clear();

@@ -8,7 +8,7 @@ namespace UPMKits
         [MenuItem("Tools/UPM Kits/Package Json Editor")]
         private static void ShowWindow()
         {
-            var window = CreateWindow<PJEWindow>();
+            var window = GetWindow<PJEWindow>();
             window.minSize = new Vector2(400, 500);
             window.titleContent = new GUIContent("PackageJsonEditor");
             window.Show();
