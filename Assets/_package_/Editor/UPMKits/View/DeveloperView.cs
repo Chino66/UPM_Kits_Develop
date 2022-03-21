@@ -28,7 +28,7 @@ namespace UPMKits
             var uxmlPath = Path.Combine(PackagePath.MainPath, @"Resources/UIElement/developer_item_uxml.uxml");
             var itemAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
             _pool = new VisualElementPool(itemAsset);
-
+            
             _developer = _cache.Get<Label>("developer_name");
             _developerScrollView = _cache.Get<ScrollView>("developer_list_sv");
             _developerScrollView.SetDisplay(showSelect);

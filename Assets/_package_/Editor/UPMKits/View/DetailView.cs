@@ -20,9 +20,16 @@ namespace UPMKits
 
         private VisualElement _dependenciesList;
 
+        private VisualElement _detailViewRoot;
+
         private SerializedObject packageJson;
 
         private Label _noTip;
+
+        private Button _operateBtn;
+
+        private Button _applyBtn;
+        private Button _revertBtn;
 
         protected override void OnInitialize(VisualElement parent)
         {
@@ -52,32 +59,18 @@ namespace UPMKits
                 textField.Unbind();
             });
 
+            _detailViewRoot = _cache.Get("detail_view_root");
+
             _noTip = _cache.Get<Label>("no_tip");
 
-            var textField = _cache.Get("name_box").Q<TextField>();
-            textField.bindingPath = "name";
-
-            textField = _cache.Get("displayName_box").Q<TextField>();
-            textField.bindingPath = "displayName";
-
-            textField = _cache.Get("version_box").Q<TextField>();
-            textField.bindingPath = "version";
-
-            textField = _cache.Get("unity_box").Q<TextField>();
-            textField.bindingPath = "unity";
-
-            textField = _cache.Get("description_box").Q<TextField>();
-            textField.bindingPath = "description";
-            textField.multiline = true;
-
-            textField = _cache.Get("type_box").Q<TextField>();
-            textField.bindingPath = "type";
-
-            textField = _cache.Get("author_box").Q<TextField>();
-            textField.bindingPath = "author";
-
-            textField = _cache.Get("license_box").Q<TextField>();
-            textField.bindingPath = "license";
+            SetTextField("name_box", "name");
+            SetTextField("displayName_box", "displayName");
+            SetTextField("version_box", "version");
+            SetTextField("unity_box", "unity");
+            SetTextField("description_box", "description");
+            SetTextField("type_box", "type");
+            SetTextField("author_box", "author");
+            SetTextField("license_box", "license");
 
             _dependenciesList = _cache.Get("dependencies_list").Q("items");
 
@@ -95,11 +88,11 @@ namespace UPMKits
                 RefreshNoTip();
             };
 
-            var applyBtn = _cache.Get<Button>("apply_btn");
-            applyBtn.clicked += () => { context.PackageJsonModel.Save(); };
+            _applyBtn = _cache.Get<Button>("apply_btn");
+            _applyBtn.clicked += () => { context.PackageJsonModel.Save(); };
 
-            var revertBtn = _cache.Get<Button>("revert_btn");
-            revertBtn.clicked += () =>
+            _revertBtn = _cache.Get<Button>("revert_btn");
+            _revertBtn.clicked += () =>
             {
                 context.PackageJsonModel.Revert();
                 Refresh();
@@ -108,16 +101,65 @@ namespace UPMKits
             var view = _cache.Get<Button>("view_package_json");
             view.clicked += () => { EditorUtility.RevealInFinder(PackageJsonModel.PackageJsonPath); };
 
+            _operateBtn = _cache.Get<Button>("operate_package_json");
+
             // var btn = new Button();
             // btn.text = "test";
             // Self.Add(btn);
             // btn.clicked += () => { Debug.Log(context.NpmrcModel.HasLocalNpmrc()); };
-
+            context.PackageJsonModel.DirtyAction = RefreshEditorOperate;
             Refresh();
+        }
+
+        private void SetTextField(string query, string bindingPath)
+        {
+            var textField = _cache.Get(query).Q<TextField>();
+            textField.bindingPath = bindingPath;
+        }
+
+        private void RefreshEditorOperate()
+        {
+            var dirty = context.PackageJsonModel.IsDirty;
+            _applyBtn.SetEnabled(dirty);
+            _revertBtn.SetEnabled(dirty);
+        }
+
+        private void RefreshOperate()
+        {
+            if (context.PackageJsonModel.HasPackageJson())
+            {
+                _operateBtn.text = "update";
+                _operateBtn.clickable = new Clickable(() =>
+                {
+                    Debug.Log("update");
+                    context.PackageJsonModel.Update();
+                });
+            }
+            else
+            {
+                _operateBtn.text = "create";
+                _operateBtn.clickable = new Clickable(() =>
+                {
+                    Debug.Log("create");
+                    context.PackageJsonModel.Create();
+                    AssetDatabase.Refresh();
+                    Refresh();
+                });
+            }
         }
 
         public void Refresh()
         {
+            RefreshOperate();
+
+            if (context.PackageJsonModel.HasPackageJson() == false)
+            {
+                _detailViewRoot.SetDisplay(false);
+                return;
+            }
+
+            _detailViewRoot.SetDisplay(true);
+
             while (_dependenciesList.childCount > 0)
             {
                 var item = _dependenciesList.ElementAt(0);
@@ -135,9 +177,36 @@ namespace UPMKits
                 NewDependency(dependencies, i);
             }
 
+            RefreshEditorOperate();
             RefreshNoTip();
+            RefreshFixInfo();
         }
 
+        private void RefreshFixInfo()
+        {
+            var repository = packageJson.FindProperty("repository");
+            var sp = repository.FindPropertyRelative("url");
+            var label = _cache.Get("repository_box").Q<Label>("url");
+            label.bindingPath = "url";
+            label.BindProperty(sp);
+
+            var bugs = packageJson.FindProperty("bugs");
+            sp = bugs.FindPropertyRelative("url");
+            label = _cache.Get("bugs_box").Q<Label>("url");
+            label.bindingPath = "url";
+            label.BindProperty(sp);
+
+            var homepage = packageJson.FindProperty("homepage");
+            label = _cache.Get("homepage_box").Q<Label>("url");
+            label.bindingPath = "url";
+            label.BindProperty(homepage);
+
+            var publishConfig = packageJson.FindProperty("publishConfig");
+            sp = publishConfig.FindPropertyRelative("registry");
+            label = _cache.Get("registry_box").Q<Label>("url");
+            label.bindingPath = "url";
+            label.BindProperty(sp);
+        }
 
         private void AddDependency()
         {

@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -8,17 +9,20 @@ using UnityEngine;
 
 namespace UPMKits
 {
+    [Serializable]
     public class Repository
     {
         public string type;
         public string url;
     }
 
+    [Serializable]
     public class Bugs
     {
         public string url;
     }
 
+    [Serializable]
     public class PublishConfig
     {
         public string registry;
@@ -48,8 +52,16 @@ namespace UPMKits
         public PublishConfig publishConfig;
         public Dictionary<string, string> dependencies;
 
-        [JsonIgnore]
-        public List<Dependency> DependencyList;
+        [JsonIgnore] public List<Dependency> DependencyList;
+
+        public PackageJsonInfo()
+        {
+            dependencies = new Dictionary<string, string>();
+            DependencyList = new List<Dependency>();
+            repository = new Repository();
+            bugs = new Bugs();
+            publishConfig = new PublishConfig();
+        }
 
         public override string ToString()
         {
@@ -82,42 +94,127 @@ namespace UPMKits
 
         public PackageJsonInfo PackageJsonInfo { get; private set; }
 
-        public PackageJsonModel()
+        private PJEContext Context;
+
+        public Action DirtyAction;
+
+        private bool _isDirty;
+
+        public bool IsDirty
         {
+            get { return _isDirty; }
+            set
+            {
+                DirtyAction?.Invoke();
+                _isDirty = value;
+            }
+        }
+
+        public PackageJsonModel(PJEContext context)
+        {
+            Context = context;
             Load();
+        }
+
+        public bool HasPackageJson()
+        {
+            return File.Exists(PackageJsonPath);
         }
 
         private void Load()
         {
+            if (HasPackageJson() == false)
+            {
+                return;
+            }
+
             var json = File.ReadAllText(PackageJsonPath);
             PackageJsonInfo = JsonConvert.DeserializeObject<PackageJsonInfo>(json) ?? new PackageJsonInfo();
 
             // 使用SerializedObject与UIElements进行数据绑定,但SerializedObject不支持Dictionary,所以需要额外将Dictionary转成List
-            PackageJsonInfo.DependencyList = new List<Dependency>();
-            foreach (var pair in PackageJsonInfo.dependencies)
+            foreach (var dependency in PackageJsonInfo.dependencies.Select(pair => new Dependency
+                {key = pair.Key, value = pair.Value}))
             {
-                var dependency = new Dependency {key = pair.Key, value = pair.Value};
                 PackageJsonInfo.DependencyList.Add(dependency);
             }
+
+            IsDirty = false;
+        }
+
+        public void Create()
+        {
+            PackageJsonInfo = new PackageJsonInfo();
+            Init(PackageJsonInfo);
+            Save();
+            Revert();
+            IsDirty = false;
+        }
+
+        public void Update()
+        {
+            Init(PackageJsonInfo);
+            IsDirty = false;
+        }
+
+        private void Init(PackageJsonInfo packageJsonInfo)
+        {
+            var developer = Context.NpmrcModel.GetDeveloper();
+            var repositoryName = Context.GitRepositoryModel.RepositoryName;
+
+            // Repository
+            var repository = packageJsonInfo.repository;
+            repository.type = "git";
+            repository.url = $"git+https://github.com/{developer}/{repositoryName}.git";
+            // packageJsonInfo.repository = repository;
+
+            // Bugs
+            var bugs = packageJsonInfo.bugs;
+            bugs.url = $"https://github.com/{developer}/{repositoryName}/issues";
+            // packageJsonInfo.bugs = bugs;
+
+            // homepage
+            packageJsonInfo.homepage = $"https://github.com/{developer}/{repositoryName}#readme";
+            // packageJsonInfo.homepage = homepage;
+
+            // publishConfig
+            var publishConfig = packageJsonInfo.publishConfig;
+            publishConfig.registry = $"https://npm.pkg.github.com/@{developer}";
+            // packageJsonInfo.publishConfig = publishConfig;
         }
 
         public void Revert()
         {
             Load();
+            IsDirty = false;
         }
 
         public void Save()
         {
+            if (PackageJsonInfo == null)
+            {
+                Debug.LogError("PackageJsonInfo is null");
+                return;
+            }
+
             PackageJsonInfo.dependencies.Clear();
             foreach (var dependency in PackageJsonInfo.DependencyList)
             {
                 PackageJsonInfo.dependencies.Add(dependency.key, dependency.value);
             }
 
+            if (!HasPackageJson())
+            {
+                File.Create(PackageJsonPath).Close();
+            }
+
             var json = File.ReadAllText(PackageJsonPath);
+            var jObject = JsonConvert.DeserializeObject<JObject>(json) ?? new JObject();
+            if (jObject.TryGetValue("dependencies", out var token))
+            {
+                jObject["dependencies"] = null;
+            }
+
             var jToken = JToken.FromObject(PackageJsonInfo);
-            var jObject = JsonConvert.DeserializeObject<JObject>(json);
-            jObject["dependencies"] = null;
             jObject.Merge(jToken);
 
             var setting = new JsonSerializerSettings {NullValueHandling = NullValueHandling.Ignore};
@@ -127,6 +224,8 @@ namespace UPMKits
             using var sw = new StreamWriter(PackageJsonPath, false, System.Text.Encoding.Default);
             sw.Write(contents);
             sw.Close();
+
+            IsDirty = false;
 
             // 使用这种方式需要重新加载文本文件
             // File.WriteAllText(PackageJsonPath, contents);
