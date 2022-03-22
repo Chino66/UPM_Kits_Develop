@@ -23,6 +23,7 @@ namespace UPMKits
             var btn = _cache.Get<Button>("publish_btn");
             btn.clicked += () =>
             {
+                System.Diagnostics.Process.Start("npm", @"publish G:\Github\UPM_Kits_Develop\Assets\_package_");
                 // Command.RunAsync("npm", ctx =>
                 // {
                 //     foreach (var message in ctx.Messages)
@@ -31,15 +32,15 @@ namespace UPMKits
                 //     }
                 // });
 
-                var command = $"call npm publish {context.PackageJsonModel.PackageJsonDirFullPath}";
-                Debug.Log($"click {command}");
-                Command.RunAsync(command, ctx =>
-                {
-                    foreach (var message in ctx.Messages)
-                    {
-                        Debug.Log(message);
-                    }
-                }, true);
+                // var command = $"call npm publish {context.PackageJsonModel.PackageJsonDirFullPath}";
+                // Debug.Log($"click {command}");
+                // Command.RunAsync(command, ctx =>
+                // {
+                //     foreach (var message in ctx.Messages)
+                //     {
+                //         Debug.Log(message);
+                //     }
+                // }, true);
             };
         }
 
