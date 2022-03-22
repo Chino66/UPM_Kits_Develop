@@ -45,7 +45,7 @@ namespace UPMKits
                     _repositoryUrl = "";
                 }
 
-                Debug.Log($"git path is {_repositoryUrl}, repository name is {_repositoryName}");
+                // Debug.Log($"git path is {_repositoryUrl}, repository name is {_repositoryName}");
             });
 
             return _repositoryUrl;

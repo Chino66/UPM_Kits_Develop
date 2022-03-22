@@ -1,7 +1,7 @@
 {
   "name": "com.chino.upm.kits",
   "displayName": "UPM Kits",
-  "version": "0.0.1",
+  "version": "0.0.7",
   "unity": "2020.1",
   "description": "UPM插件包开发工具",
   "type": "tool",
@@ -11,17 +11,17 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/Chino66/Object_Pool_Develop.git"
+    "url": "git+https://github.com/Chino66/UPM_Kits_Develop.git"
   },
   "dependencies": {},
   "author": "chino66",
   "license": "ISC",
   "bugs": {
-    "url": "https://github.com/Chino66/Object_Pool_Develop/issues"
+    "url": "https://github.com/Chino66/UPM_Kits_Develop/issues"
   },
-  "homepage": "https://github.com/Chino66/Object_Pool_Develop#readme",
+  "homepage": "https://github.com/Chino66/UPM_Kits_Develop#readme",
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/@chino66"
+    "registry": "https://npm.pkg.github.com/@Chino66"
   },
   "other": "xxxxxxxxxxxxxxxx",
   "other2": "xxxxxxxxxxxxxxxx22",

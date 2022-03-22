@@ -42,6 +42,7 @@ namespace UPMKits
 
             AddView<DeveloperView>();
             AddView<DetailView>();
+            AddView<PublishView>();
             // AddView<DetailView>();
             // AddView<OperateView>();
             // AddView<TipView>();

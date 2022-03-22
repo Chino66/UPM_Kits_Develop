@@ -89,7 +89,7 @@ namespace UPMKits
             };
 
             _applyBtn = _cache.Get<Button>("apply_btn");
-            _applyBtn.clicked += () => { context.PackageJsonModel.Save(); };
+            _applyBtn.clicked += () => { context.PackageJsonModel.Apply(); };
 
             _revertBtn = _cache.Get<Button>("revert_btn");
             _revertBtn.clicked += () =>
@@ -103,23 +103,29 @@ namespace UPMKits
 
             _operateBtn = _cache.Get<Button>("operate_package_json");
 
+            // context.PackageJsonModel.DirtyAction = RefreshEditorOperate;
+            Refresh();
+
             // var btn = new Button();
             // btn.text = "test";
             // Self.Add(btn);
             // btn.clicked += () => { Debug.Log(context.NpmrcModel.HasLocalNpmrc()); };
-            context.PackageJsonModel.DirtyAction = RefreshEditorOperate;
-            Refresh();
         }
 
         private void SetTextField(string query, string bindingPath)
         {
             var textField = _cache.Get(query).Q<TextField>();
             textField.bindingPath = bindingPath;
+            // textField.RegisterValueChangedCallback(evt =>
+            // {
+            //     context.PackageJsonModel.CheckModify();
+            // });
         }
 
         private void RefreshEditorOperate()
         {
-            var dirty = context.PackageJsonModel.IsDirty;
+            // var dirty = context.PackageJsonModel.IsDirty;
+            var dirty = true;
             _applyBtn.SetEnabled(dirty);
             _revertBtn.SetEnabled(dirty);
         }
@@ -171,6 +177,7 @@ namespace UPMKits
             Self.Unbind();
             packageJson = new SerializedObject(context.PackageJsonModel.PackageJsonInfo);
             Self.Bind(packageJson);
+
             var dependencies = packageJson.FindProperty("DependencyList");
             for (int i = 0; i < dependencies.arraySize; i++)
             {

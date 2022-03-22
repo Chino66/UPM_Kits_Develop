@@ -103,4 +103,12 @@
             </ui:Box>
         </ui:VisualElement>
     </ui:VisualElement>
+    <ui:VisualElement name="publish_root">
+        <ui:VisualElement name="title_ev" class="unity-box row" style="background-color: rgb(41, 41, 41);">
+            <ui:Label text="publish" display-tooltip-when-elided="true" style="-unity-font-style: bold; border-left-width: 0; border-right-width: 0; border-top-width: 0; border-bottom-width: 0; border-left-color: rgb(135, 135, 135); border-right-color: rgb(135, 135, 135); border-top-color: rgb(135, 135, 135); border-bottom-color: rgb(135, 135, 135); border-top-left-radius: 0; border-bottom-left-radius: 0; border-top-right-radius: 0; border-bottom-right-radius: 0; background-color: rgba(56, 56, 56, 0); flex-shrink: 1; flex-grow: 0; width: auto;" />
+        </ui:VisualElement>
+        <ui:VisualElement name="developer_select_ev" class="unity-box" style="background-color: rgb(51, 51, 51); margin-top: 2px; margin-bottom: 2px;">
+            <ui:Button text="publish" display-tooltip-when-elided="true" name="publish_btn" />
+        </ui:VisualElement>
+    </ui:VisualElement>
 </ui:UXML>
