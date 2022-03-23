@@ -120,6 +120,15 @@ namespace UPMKits
             _items = JsonConvert.DeserializeObject<List<ConfigItem>>(json) ?? new List<ConfigItem>();
         }
 
+        public string GetTokenByUsername(string username)
+        {
+            var items = GetItems();
+
+            var ret = items.Select(item => item).Where(item => item.Username == username);
+
+            return ret.Any() ? ret.First().Token : null;
+        }
+
         public int GetItemsCount()
         {
             return _items.Count;

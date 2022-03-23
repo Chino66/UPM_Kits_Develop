@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using CommandTool;
+using NPMKits;
 using UIElementsKits;
 using UIElementsKits.UIFramework;
 using UnityEditor;
@@ -25,27 +26,33 @@ namespace UPMKits
             var btn = _cache.Get<Button>("publish_btn");
             btn.clicked += () =>
             {
-                // run();
-                ExecuteCommand("");
-                // System.Diagnostics.Process.Start("npm", @"publish G:\Github\UPM_Kits_Develop\Assets\_package_");
-                // Command.RunAsync("npm", ctx =>
-                // {
-                //     foreach (var message in ctx.Messages)
-                //     {
-                //         Debug.Log(message);
-                //     }
-                // });
-
-                // var command = $"call npm publish {context.PackageJsonModel.PackageJsonDirFullPath}";
-                // Debug.Log($"click {command}");
-                // Command.RunAsync(command, ctx =>
-                // {
-                //     foreach (var message in ctx.Messages)
-                //     {
-                //         Debug.Log(message);
-                //     }
-                // }, true);
+                var arguments = $"{context.PackageJsonModel.PackageJsonDirFullPath}";
+                NPM.Publish(arguments, ctx => { Debug.Log(ctx.ToString()); });
             };
+
+            btn = _cache.Get<Button>("list_btn");
+            btn.clicked += () =>
+            {
+                var packageName = context.PackageJsonModel.PackageJsonInfo.name;
+                var scope = context.NpmrcModel.GetDeveloper();
+                var token = context.UECConfigModel.GetTokenByUsername(scope);
+                var cmd = GetAllPackageVersionsCommand(scope, token, packageName);
+                // Command.RunAsync(cmd, ctx => { Debug.Log(ctx.ToString()); });
+                
+                ProcessUtil.RunAsync("curl", cmd, ctx => { Debug.Log(ctx.ToString()); });
+            };
+        }
+
+        /// <summary>
+        /// https://docs.github.com/cn/rest/reference/packages#get-all-package-versions-for-a-package-owned-by-a-user
+        /// </summary>
+        private string GetAllPackageVersionsCommand(string scope, string token,
+            string packageName,
+            string packageType = "npm")
+        {
+            var command =
+                $"-u {scope}:{token} -H \"Accept: application/vnd.github.v3+json\" https://api.github.com/users/{scope}/packages/{packageType}/{packageName}/versions";
+            return command;
         }
 
         public void Refresh()
@@ -54,12 +61,14 @@ namespace UPMKits
 
         private void ExecuteCommand(string command)
         {
-            var processInfo =
-                new ProcessStartInfo("npm.cmd", @"publish G:\Github\UPM_Kits_Develop\Assets\_package_ & exit");
-            processInfo.CreateNoWindow = true;
-            processInfo.UseShellExecute = false;
-            processInfo.RedirectStandardError = true;
-            processInfo.RedirectStandardOutput = true;
+            var cmd = $"publish {context.PackageJsonModel.PackageJsonDirFullPath}";
+            var processInfo = new ProcessStartInfo("npm.cmd", $@"{cmd} & exit")
+            {
+                CreateNoWindow = true,
+                UseShellExecute = false,
+                RedirectStandardError = true,
+                RedirectStandardOutput = true
+            };
 
             var process = Process.Start(processInfo);
 

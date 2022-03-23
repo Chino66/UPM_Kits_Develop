@@ -109,6 +109,7 @@
         </ui:VisualElement>
         <ui:VisualElement name="developer_select_ev" class="unity-box" style="background-color: rgb(51, 51, 51); margin-top: 2px; margin-bottom: 2px;">
             <ui:Button text="publish" display-tooltip-when-elided="true" name="publish_btn" />
+            <ui:Button text="version list" display-tooltip-when-elided="true" name="list_btn" />
         </ui:VisualElement>
     </ui:VisualElement>
 </ui:UXML>
