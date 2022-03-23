@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using CommandTool;
+using GithubKits;
 using NPMKits;
 using UIElementsKits;
 using UIElementsKits.UIFramework;
@@ -30,30 +31,34 @@ namespace UPMKits
                 NPM.Publish(arguments, ctx => { Debug.Log(ctx.ToString()); });
             };
 
-            btn = _cache.Get<Button>("list_btn");
+            btn = _cache.Get<Button>("version_list_btn");
             btn.clicked += () =>
             {
                 var packageName = context.PackageJsonModel.PackageJsonInfo.name;
                 var scope = context.NpmrcModel.GetDeveloper();
                 var token = context.UECConfigModel.GetTokenByUsername(scope);
-                var cmd = GetAllPackageVersionsCommand(scope, token, packageName);
-                // Command.RunAsync(cmd, ctx => { Debug.Log(ctx.ToString()); });
-                
-                ProcessUtil.RunAsync("curl", cmd, ctx => { Debug.Log(ctx.ToString()); });
+
+                GithubAPI.GetAllPackageVersions(scope, token, packageName, "npm",
+                    overview => { Debug.Log(overview.ToString()); });
+            };
+
+            btn = _cache.Get<Button>("package_list_btn");
+            btn.clicked += () =>
+            {
+                var scope = context.NpmrcModel.GetDeveloper();
+                var token = context.UECConfigModel.GetTokenByUsername(scope);
+
+                GithubAPI.GetPackageList(scope, token, "npm",
+                    list =>
+                    {
+                        foreach (var overview in list)
+                        {
+                            Debug.Log(overview.ToString());
+                        }
+                    });
             };
         }
 
-        /// <summary>
-        /// https://docs.github.com/cn/rest/reference/packages#get-all-package-versions-for-a-package-owned-by-a-user
-        /// </summary>
-        private string GetAllPackageVersionsCommand(string scope, string token,
-            string packageName,
-            string packageType = "npm")
-        {
-            var command =
-                $"-u {scope}:{token} -H \"Accept: application/vnd.github.v3+json\" https://api.github.com/users/{scope}/packages/{packageType}/{packageName}/versions";
-            return command;
-        }
 
         public void Refresh()
         {
