@@ -7,15 +7,11 @@ namespace UPMKits
     {
         private PJEContext Context;
 
-        public Dictionary<string /*package name*/, PackageData> PackageDatas;
-
-        public string Developer => Context.NpmrcModel.GetDeveloper();
+        public PackageOverview Overview;
 
         public PackageModel(PJEContext context)
         {
             Context = context;
-
-            PackageDatas = new Dictionary<string, PackageData>();
         }
     }
 }

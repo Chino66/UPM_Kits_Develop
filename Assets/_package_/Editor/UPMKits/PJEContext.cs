@@ -6,6 +6,7 @@ namespace UPMKits
         public PackageJsonModel PackageJsonModel;
         public NpmrcModel NpmrcModel;
         public GitRepositoryModel GitRepositoryModel;
+        public PackageModel PackageModel;
 
         public PJEContext()
         {
@@ -16,6 +17,8 @@ namespace UPMKits
             NpmrcModel = new NpmrcModel(this);
 
             GitRepositoryModel = new GitRepositoryModel();
+
+            PackageModel = new PackageModel(this);
         }
     }
 }

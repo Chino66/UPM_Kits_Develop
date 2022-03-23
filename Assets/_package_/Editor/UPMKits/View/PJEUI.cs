@@ -37,27 +37,17 @@ namespace UPMKits
             var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(ussPath);
             var temp = asset.CloneTree();
             temp.styleSheets.Add(styleSheet);
-            // AddStyleSheet(styleSheet);
+            AddStyleSheet(styleSheet);
             Add(temp);
 
             AddView<DeveloperView>();
             AddView<DetailView>();
-            AddView<PublishView>();
-            // AddView<DetailView>();
-            // AddView<OperateView>();
-            // AddView<TipView>();
-            // AddView<UpdateView>();
-            // AddView<InstallView>();
+            AddView<OperateView>();
         }
 
         public void Refresh()
         {
-            // GetView<OverviewView>().Refresh();
-            // GetView<DetailView>().Refresh();
-            // GetView<OperateView>().Refresh();
-            // GetView<TipView>().Refresh();
-            // GetView<UpdateView>().Refresh();
-            // GetView<InstallView>().Refresh();
+
         }
     }
 }

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using CommandTool;
 using Newtonsoft.Json.Linq;
+using UnityEngine;
 
 namespace GithubKits
 {
@@ -75,6 +76,56 @@ namespace GithubKits
 
         #endregion
 
+        /**
+         * 删除指定版本的包
+         * https://docs.github.com/cn/rest/reference/packages#delete-package-version-for-a-user
+         */
+
+        #region delete-package-version-for-a-user
+
+        public static async Task DeletePackageVersion(string username, string token,
+            string packageName,
+            string packageType,
+            int packageVersionId,
+            Action<bool> callback)
+        {
+            var command = GetDeletePackageVersionCommand(username, token, packageName, packageType, packageVersionId);
+            await Command.RunAsync(command, ctx =>
+            {
+                var builder = new StringBuilder();
+                foreach (var msg in ctx.Messages)
+                {
+                    Debug.Log(msg);
+                    builder.Append(msg);
+                }
+
+                var content = builder.ToString();
+                if (string.IsNullOrEmpty(content))
+                {
+                    callback?.Invoke(true);
+                }
+                else
+                {
+                    callback?.Invoke(false);
+                }
+            });
+        }
+
+        /// <summary>
+        /// https://docs.github.com/cn/rest/reference/packages#delete-package-version-for-a-user
+        /// </summary>
+        private static string GetDeletePackageVersionCommand(string username, string token,
+            string package_name,
+            string package_type,
+            int package_version_id)
+        {
+            var command =
+                $"curl -u {username}:{token} -X DELETE -H \"Accept: application/vnd.github.v3+json\" https://api.github.com/users/{username}/packages/{package_type}/{package_name}/versions/{package_version_id}";
+            return command;
+        }
+
+        #endregion
+
         /*
          * 获取这个包的所有版本
          * https://docs.github.com/cn/rest/reference/packages#get-all-package-versions-for-a-package-owned-by-a-user
@@ -88,7 +139,7 @@ namespace GithubKits
             Action<PackageOverview> callback)
         {
             var command = GetAllPackageVersionsCommand(username, token, packageName, packageType);
-            Command.RunAsync(command, ctx =>
+            await Command.RunAsync(command, ctx =>
             {
                 var builder = new StringBuilder();
                 foreach (var msg in ctx.Messages)
@@ -112,7 +163,8 @@ namespace GithubKits
                 var versions = overview.Versions;
                 versions.AddRange(jArray.Children().Select(child => new PackageVersion
                 {
-                    Id = child["id"].ToString(), Version = child["name"].ToString(),
+                    Id = child["id"].ToString(),
+                    Version = child["name"].ToString(),
                     Description = child["description"].ToString()
                 }));
 
