@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using CommandTool;
+using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
 
@@ -38,6 +39,12 @@ namespace GithubKits
                 {
                     return;
                 }
+
+                // var message = JsonConvert.DeserializeObject<ResponseMessage>(content);
+                // if (message != null)
+                // {
+                //     
+                // }
 
                 var jArray = JArray.Parse(content);
 
@@ -95,7 +102,6 @@ namespace GithubKits
                 var builder = new StringBuilder();
                 foreach (var msg in ctx.Messages)
                 {
-                    Debug.Log(msg);
                     builder.Append(msg);
                 }
 
@@ -106,6 +112,7 @@ namespace GithubKits
                 }
                 else
                 {
+                    Debug.Log(content);
                     callback?.Invoke(false);
                 }
             });
@@ -142,6 +149,7 @@ namespace GithubKits
             await Command.RunAsync(command, ctx =>
             {
                 var builder = new StringBuilder();
+
                 foreach (var msg in ctx.Messages)
                 {
                     builder.Append(msg);
@@ -154,21 +162,33 @@ namespace GithubKits
                     return;
                 }
 
-                var jArray = JArray.Parse(content);
 
-                var overview = new PackageOverview
-                {
-                    Name = packageName
-                };
-                var versions = overview.Versions;
-                versions.AddRange(jArray.Children().Select(child => new PackageVersion
-                {
-                    Id = child["id"].ToString(),
-                    Version = child["name"].ToString(),
-                    Description = child["description"].ToString()
-                }));
+                var token = JToken.Parse(content);
 
-                callback?.Invoke(overview);
+                if (token.Type == JTokenType.Object)
+                {
+                    var message = JsonConvert.DeserializeObject<ResponseMessage>(content);
+                    if (message == null) return;
+                    Debug.Log(message.Message);
+                    return;
+                }
+                else if (token.Type == JTokenType.Array)
+                {
+                    var jArray = JArray.Parse(content);
+                    var overview = new PackageOverview
+                    {
+                        Name = packageName
+                    };
+                    var versions = overview.Versions;
+                    versions.AddRange(jArray.Children().Select(child => new PackageVersion
+                    {
+                        Id = child["id"].ToString(),
+                        Version = child["name"].ToString(),
+                        Description = child["description"].ToString()
+                    }));
+
+                    callback?.Invoke(overview);
+                }
             });
         }
 
