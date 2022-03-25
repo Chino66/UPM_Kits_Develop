@@ -50,7 +50,7 @@ namespace UPMKits
                 var scope = context.NpmrcModel.GetDeveloper();
                 var token = context.UECConfigModel.GetTokenByUsername(scope);
 
-                GithubAPI.GetPackageList(scope, token, "npm",
+                GithubAPI.GetUserAllPackages(scope, token, "npm",
                     list =>
                     {
                         foreach (var overview in list)
@@ -72,7 +72,7 @@ namespace UPMKits
             var scope = context.NpmrcModel.GetDeveloper();
             var token = context.UECConfigModel.GetTokenByUsername(scope);
 
-            await GithubAPI.GetAllPackageVersions(scope, token, packageName, "npm",
+            await GithubAPI.GetThePackageAllVersions(scope, token, packageName, "npm",
                 overview =>
                 {
                     Debug.Log(overview.ToString());

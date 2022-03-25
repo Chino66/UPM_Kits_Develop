@@ -12,6 +12,17 @@ namespace GithubKits
 {
     public static class GithubAPI
     {
+        private const string Message = "message";
+        private const string DocumentationUrl = "documentation_url";
+        private static bool IsMessage(JToken jToken)
+        {
+            if (jToken.Contains(Message) && jToken.Contains(DocumentationUrl))
+            {
+                return true;
+            }
+
+            return false;
+        }
         /*
          * 获取用户所有包列表
          * https://docs.github.com/cn/rest/reference/packages#list-packages-for-a-user
@@ -19,11 +30,11 @@ namespace GithubKits
 
         #region list-packages-for-a-user
 
-        public static async Task GetPackageList(string username, string token,
+        public static async Task GetUserAllPackages(string username, string token,
             string packageType,
             Action<List<PackageOverview>> callback)
         {
-            var command = GetPackageListCommand(username, token, packageType);
+            var command = GetUserAllPackagesCommand(username, token, packageType);
 
             await Command.RunAsync(command, (ctx) =>
             {
@@ -35,11 +46,18 @@ namespace GithubKits
 
                 var content = builder.ToString();
 
-                if (content == "")
+                if (content == "" || string.IsNullOrEmpty(content))
                 {
                     return;
                 }
 
+                var jToken = JToken.Parse(content);
+
+                if (IsMessage(jToken))
+                {
+                    JsonConvert.<ResponseMessage>(jToken);
+                }
+                
                 // var message = JsonConvert.DeserializeObject<ResponseMessage>(content);
                 // if (message != null)
                 // {
@@ -74,7 +92,7 @@ namespace GithubKits
         /// <param name="token"></param>
         /// <param name="packageType"></param>
         /// <returns></returns>
-        private static string GetPackageListCommand(string scope, string token, string packageType)
+        private static string GetUserAllPackagesCommand(string scope, string token, string packageType)
         {
             var command =
                 $"curl -u {scope}:{token} -H \"Accept: application/vnd.github.v3+json\" https://api.github.com/users/{scope}/packages?package_type={packageType}";
@@ -96,7 +114,7 @@ namespace GithubKits
             int packageVersionId,
             Action<bool> callback)
         {
-            var command = GetDeletePackageVersionCommand(username, token, packageName, packageType, packageVersionId);
+            var command = DeletePackageVersionCommand(username, token, packageName, packageType, packageVersionId);
             await Command.RunAsync(command, ctx =>
             {
                 var builder = new StringBuilder();
@@ -121,7 +139,7 @@ namespace GithubKits
         /// <summary>
         /// https://docs.github.com/cn/rest/reference/packages#delete-package-version-for-a-user
         /// </summary>
-        private static string GetDeletePackageVersionCommand(string username, string token,
+        private static string DeletePackageVersionCommand(string username, string token,
             string package_name,
             string package_type,
             int package_version_id)
@@ -140,12 +158,12 @@ namespace GithubKits
 
         #region get-all-package-versions-for-a-package-owned-by-a-user
 
-        public static async Task GetAllPackageVersions(string username, string token,
+        public static async Task GetThePackageAllVersions(string username, string token,
             string packageName,
             string packageType,
             Action<PackageOverview> callback)
         {
-            var command = GetAllPackageVersionsCommand(username, token, packageName, packageType);
+            var command = GetThePackageAllVersionsCommand(username, token, packageName, packageType);
             await Command.RunAsync(command, ctx =>
             {
                 var builder = new StringBuilder();
@@ -195,7 +213,7 @@ namespace GithubKits
         /// <summary>
         /// https://docs.github.com/cn/rest/reference/packages#get-all-package-versions-for-a-package-owned-by-a-user
         /// </summary>
-        private static string GetAllPackageVersionsCommand(string scope, string token,
+        private static string GetThePackageAllVersionsCommand(string scope, string token,
             string packageName,
             string packageType = "npm")
         {
