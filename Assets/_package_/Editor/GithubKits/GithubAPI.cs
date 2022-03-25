@@ -14,9 +14,15 @@ namespace GithubKits
     {
         private const string Message = "message";
         private const string DocumentationUrl = "documentation_url";
+
         private static bool IsMessage(JToken jToken)
         {
-            if (jToken.Contains(Message) && jToken.Contains(DocumentationUrl))
+            if (jToken.Type != JTokenType.Object)
+            {
+                return false;
+            }
+
+            if (jToken[Message] != null && jToken[DocumentationUrl] != null)
             {
                 return true;
             }
@@ -30,12 +36,12 @@ namespace GithubKits
 
         #region list-packages-for-a-user
 
-        public static async Task GetUserAllPackages(string username, string token,
+        public static async Task<ResponseMessage> GetUserAllPackages(string username, string token,
             string packageType,
             Action<List<PackageOverview>> callback)
         {
+            ResponseMessage message = null;
             var command = GetUserAllPackagesCommand(username, token, packageType);
-
             await Command.RunAsync(command, (ctx) =>
             {
                 var builder = new StringBuilder();
@@ -48,6 +54,7 @@ namespace GithubKits
 
                 if (content == "" || string.IsNullOrEmpty(content))
                 {
+                    message = new ResponseMessage {Message = "Response Message is Empty"};
                     return;
                 }
 
@@ -55,34 +62,23 @@ namespace GithubKits
 
                 if (IsMessage(jToken))
                 {
-                    JsonConvert.<ResponseMessage>(jToken);
+                    message = jToken.ToObject<ResponseMessage>();
+                    return;
                 }
-                
-                // var message = JsonConvert.DeserializeObject<ResponseMessage>(content);
-                // if (message != null)
-                // {
-                //     
-                // }
 
                 var jArray = JArray.Parse(content);
 
-                var list = new List<PackageOverview>();
-
-                foreach (var child in jArray.Children())
+                var list = jArray.Children().Select(child => new PackageOverview
                 {
-                    var overview = new PackageOverview
-                    {
-                        Name = child["name"].ToString(),
-                        Url = child["url"].ToString(),
-                        Description = child["repository"]["description"].ToString(),
-                        Visibility = child["visibility"].ToString()
-                    };
-
-                    list.Add(overview);
-                }
+                    Name = child["name"].ToString(), Url = child["url"].ToString(),
+                    Description = child["repository"]["description"].ToString(),
+                    Visibility = child["visibility"].ToString()
+                }).ToList();
 
                 callback?.Invoke(list);
             });
+
+            return message;
         }
 
         /// <summary>
@@ -108,12 +104,13 @@ namespace GithubKits
 
         #region delete-package-version-for-a-user
 
-        public static async Task DeletePackageVersion(string username, string token,
+        public static async Task<ResponseMessage> DeletePackageVersion(string username, string token,
             string packageName,
             string packageType,
             int packageVersionId,
             Action<bool> callback)
         {
+            ResponseMessage message = null;
             var command = DeletePackageVersionCommand(username, token, packageName, packageType, packageVersionId);
             await Command.RunAsync(command, ctx =>
             {
@@ -124,16 +121,24 @@ namespace GithubKits
                 }
 
                 var content = builder.ToString();
+
+                // 没有返回值说明操作成功
                 if (string.IsNullOrEmpty(content))
                 {
                     callback?.Invoke(true);
+                    return;
                 }
-                else
+
+                var jToken = JToken.Parse(content);
+                if (IsMessage(jToken))
                 {
-                    Debug.Log(content);
+                    message = jToken.ToObject<ResponseMessage>();
                     callback?.Invoke(false);
+                    return;
                 }
             });
+
+            return message;
         }
 
         /// <summary>
@@ -158,11 +163,12 @@ namespace GithubKits
 
         #region get-all-package-versions-for-a-package-owned-by-a-user
 
-        public static async Task GetThePackageAllVersions(string username, string token,
+        public static async Task<ResponseMessage> GetThePackageAllVersions(string username, string token,
             string packageName,
             string packageType,
             Action<PackageOverview> callback)
         {
+            ResponseMessage message = null;
             var command = GetThePackageAllVersionsCommand(username, token, packageName, packageType);
             await Command.RunAsync(command, ctx =>
             {
@@ -175,39 +181,37 @@ namespace GithubKits
 
                 var content = builder.ToString();
 
-                if (content == "")
+                if (content == "" || string.IsNullOrEmpty(content))
                 {
+                    message = new ResponseMessage {Message = "Response Message is Empty"};
                     return;
                 }
 
+                var jToken = JToken.Parse(content);
 
-                var token = JToken.Parse(content);
-
-                if (token.Type == JTokenType.Object)
+                if (IsMessage(jToken))
                 {
-                    var message = JsonConvert.DeserializeObject<ResponseMessage>(content);
-                    if (message == null) return;
-                    Debug.Log(message.Message);
+                    message = jToken.ToObject<ResponseMessage>();
                     return;
                 }
-                else if (token.Type == JTokenType.Array)
-                {
-                    var jArray = JArray.Parse(content);
-                    var overview = new PackageOverview
-                    {
-                        Name = packageName
-                    };
-                    var versions = overview.Versions;
-                    versions.AddRange(jArray.Children().Select(child => new PackageVersion
-                    {
-                        Id = child["id"].ToString(),
-                        Version = child["name"].ToString(),
-                        Description = child["description"].ToString()
-                    }));
 
-                    callback?.Invoke(overview);
-                }
+                var jArray = JArray.Parse(content);
+                var overview = new PackageOverview
+                {
+                    Name = packageName
+                };
+                var versions = overview.Versions;
+                versions.AddRange(jArray.Children().Select(child => new PackageVersion
+                {
+                    Id = child["id"].ToString(),
+                    Version = child["name"].ToString(),
+                    Description = child["description"].ToString()
+                }));
+
+                callback?.Invoke(overview);
             });
+
+            return message;
         }
 
         /// <summary>

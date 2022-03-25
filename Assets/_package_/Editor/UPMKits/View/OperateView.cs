@@ -72,12 +72,19 @@ namespace UPMKits
             var scope = context.NpmrcModel.GetDeveloper();
             var token = context.UECConfigModel.GetTokenByUsername(scope);
 
-            await GithubAPI.GetThePackageAllVersions(scope, token, packageName, "npm",
+            var message = await GithubAPI.GetThePackageAllVersions(scope, token, packageName, "npm",
                 overview =>
                 {
                     Debug.Log(overview.ToString());
                     context.PackageModel.Overview = overview;
                 });
+
+            if (message != null)
+            {
+                Debug.Log(message.ToString());
+
+                return;
+            }
 
             var overview = context.PackageModel.Overview;
             foreach (var version in overview.Versions)
@@ -105,8 +112,14 @@ namespace UPMKits
             var scope = context.NpmrcModel.GetDeveloper();
             var token = context.UECConfigModel.GetTokenByUsername(scope);
 
-            await GithubAPI.DeletePackageVersion(scope, token, packageName, "npm", versionId,
+            var message = await GithubAPI.DeletePackageVersion(scope, token, packageName, "npm", versionId,
                 overview => { Debug.Log(overview.ToString()); });
+
+            if (message != null)
+            {
+                Debug.Log(message.ToString());
+                return;
+            }
         }
 
         public void Refresh()
