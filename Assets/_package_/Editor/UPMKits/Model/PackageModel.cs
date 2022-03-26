@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using GithubKits;
 using UnityEngine;
 using UnityEngine.UIElements;
@@ -20,44 +21,31 @@ namespace UPMKits
 
         private async void GetPackageVersions()
         {
+            Overview = await GetPackageVersionsAsync();
+        }
+
+        private async Task<PackageOverview> GetPackageVersionsAsync()
+        {
             // todo 有效性检查
             var packageName = _context.PackageJsonModel.PackageJsonInfo.name;
             var scope = _context.NpmrcModel.GetDeveloper();
             var token = _context.UECConfigModel.GetTokenByUsername(scope);
 
+            PackageOverview packageOverview = null;
             var message = await GithubAPI.GetThePackageAllVersions(scope, token, packageName, "npm",
                 overview =>
                 {
                     Debug.Log(overview.ToString());
-                    _context.PackageModel.Overview = overview;
+                    packageOverview = overview;
                 });
 
             if (message != null)
             {
                 Debug.Log(message.ToString());
-                return;
+                return null;
             }
 
-            var overview = _context.PackageModel.Overview;
-            foreach (var version in overview.Versions)
-            {
-                var element = _pool.Get();
-                _versionScrollView.Add(element);
-
-                var lab = element.Q<Label>("version_lab");
-                lab.text = version.Version;
-
-                lab = element.Q<Label>("description_lab");
-                lab.text = version.Description;
-
-                var btn = element.Q<Button>("remove_btn");
-                btn.clickable = new Clickable(() => { DeletePackageVersion(int.Parse(version.Id)); });
-
-                btn = element.Q<Button>("view_btn");
-                btn.clickable = new Clickable(() => { Application.OpenURL(version.HtmlUrl); });
-            }
-
-            _versionsRoot.SetDisplay(true);
+            return packageOverview;
         }
     }
 }
