@@ -26,7 +26,7 @@ namespace UPMKits
 
         protected override void OnInitialize(VisualElement parent)
         {
-            var temp = parent.Q("operate_root");
+            var temp = parent.Q("operate_package_root");
             temp.parent.Add(Self);
             Add(temp);
             _cache = new VisualElementCache(temp);

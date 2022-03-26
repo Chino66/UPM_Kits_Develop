@@ -38,7 +38,7 @@ namespace UPMKits
 
             AddView<DeveloperView>();
             AddView<DetailView>();
-            // AddView<OperateView>();
+            AddView<OperateView>();
         }
 
         public void Refresh()

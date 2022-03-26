@@ -9,7 +9,7 @@ namespace UPMKits
         private static void ShowWindow()
         {
             var window = GetWindow<PJEWindow>();
-            window.minSize = new Vector2(400, 520);
+            window.minSize = new Vector2(800, 520);
             window.titleContent = new GUIContent("PackageJsonEditor");
             window.Show();
         }
