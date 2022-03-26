@@ -7,6 +7,7 @@ using NPMKits;
 using UIElementsKits;
 using UIElementsKits.UIFramework;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 using Debug = UnityEngine.Debug;
 
@@ -100,6 +101,9 @@ namespace UPMKits
 
                 var btn = element.Q<Button>("remove_btn");
                 btn.clickable = new Clickable(() => { DeletePackageVersion(int.Parse(version.Id)); });
+
+                btn = element.Q<Button>("view_btn");
+                btn.clickable = new Clickable(() => { Application.OpenURL(version.HtmlUrl); });
             }
 
             _versionsRoot.SetDisplay(true);

@@ -9,10 +9,11 @@ namespace GithubKits
         public string Id;
         public string Version;
         public string Description;
+        public string HtmlUrl;
 
         public override string ToString()
         {
-            return $"Id:{Id}, Version:{Version}, Description:{Description}";
+            return $"Id:{Id}, Version:{Version}, Description:{Description}, HtmlUrl:{HtmlUrl}";
         }
     }
 

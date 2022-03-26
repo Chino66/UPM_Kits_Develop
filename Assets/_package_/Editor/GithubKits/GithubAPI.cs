@@ -205,7 +205,8 @@ namespace GithubKits
                 {
                     Id = child["id"].ToString(),
                     Version = child["name"].ToString(),
-                    Description = child["description"].ToString()
+                    Description = child["description"].ToString(),
+                    HtmlUrl = child["html_url"].ToString()
                 }));
 
                 callback?.Invoke(overview);
