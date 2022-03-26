@@ -28,16 +28,23 @@ namespace UPMKits
             var uxmlPath = Path.Combine(PackagePath.MainPath, @"Resources/UIElement/developer_item_uxml.uxml");
             var itemAsset = AssetDatabase.LoadAssetAtPath<VisualTreeAsset>(uxmlPath);
             _pool = new VisualElementPool(itemAsset);
-            
+            _pool.SetCreateFunc(element =>
+            {
+                element.style.flexGrow = 1;
+                return element;
+            });
+
             _developer = _cache.Get<Label>("developer_name");
             _developerScrollView = _cache.Get<ScrollView>("developer_list_sv");
             _developerScrollView.SetDisplay(showSelect);
+            _developerScrollView.parent.SetDisplay(showSelect);
 
             var btn = _cache.Get<Button>("select_developer");
             btn.clicked += () =>
             {
                 showSelect = !showSelect;
                 _developerScrollView.SetDisplay(showSelect);
+                _developerScrollView.parent.SetDisplay(showSelect);
                 if (showSelect)
                 {
                     ShowSelectDeveloperList();

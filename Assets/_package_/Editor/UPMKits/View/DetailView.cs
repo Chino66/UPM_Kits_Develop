@@ -28,8 +28,8 @@ namespace UPMKits
 
         private Button _operateBtn;
 
-        private Button _applyBtn;
-        private Button _revertBtn;
+        // private Button _applyBtn;
+        // private Button _revertBtn;
 
         protected override void OnInitialize(VisualElement parent)
         {
@@ -88,15 +88,15 @@ namespace UPMKits
                 RefreshNoTip();
             };
 
-            _applyBtn = _cache.Get<Button>("apply_btn");
-            _applyBtn.clicked += () => { context.PackageJsonModel.Apply(); };
-
-            _revertBtn = _cache.Get<Button>("revert_btn");
-            _revertBtn.clicked += () =>
-            {
-                context.PackageJsonModel.Revert();
-                Refresh();
-            };
+            // _applyBtn = _cache.Get<Button>("apply_btn");
+            // _applyBtn.clicked += () => { context.PackageJsonModel.Apply(); };
+            //
+            // _revertBtn = _cache.Get<Button>("revert_btn");
+            // _revertBtn.clicked += () =>
+            // {
+            //     context.PackageJsonModel.Revert();
+            //     Refresh();
+            // };
 
             var view = _cache.Get<Button>("view_package_json");
             view.clicked += () => { EditorUtility.RevealInFinder(PackageJsonModel.PackageJsonPath); };
@@ -125,9 +125,9 @@ namespace UPMKits
         private void RefreshEditorOperate()
         {
             // var dirty = context.PackageJsonModel.IsDirty;
-            var dirty = true;
-            _applyBtn.SetEnabled(dirty);
-            _revertBtn.SetEnabled(dirty);
+            // var dirty = true;
+            // _applyBtn.SetEnabled(dirty);
+            // _revertBtn.SetEnabled(dirty);
         }
 
         private void RefreshOperate()

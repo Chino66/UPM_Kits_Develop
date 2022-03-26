@@ -13,11 +13,6 @@ namespace UPMKits
         public static PJEUI CreateUI(VisualElement parent = null)
         {
             var ui = new PJEUI();
-            if (parent == null)
-            {
-                parent = new VisualElement();
-            }
-
             ui.Initialize(parent);
             return ui;
         }
@@ -36,18 +31,18 @@ namespace UPMKits
             var ussPath = Path.Combine(PackagePath.MainPath, @"Resources/UIElement/uss.uss");
             var styleSheet = AssetDatabase.LoadAssetAtPath<StyleSheet>(ussPath);
             var temp = asset.CloneTree();
+            temp.style.flexGrow = 1;
             temp.styleSheets.Add(styleSheet);
             AddStyleSheet(styleSheet);
             Add(temp);
 
             AddView<DeveloperView>();
             AddView<DetailView>();
-            AddView<OperateView>();
+            // AddView<OperateView>();
         }
 
         public void Refresh()
         {
-
         }
     }
 }
