@@ -45,21 +45,21 @@ namespace UPMKits
             btn = _cache.Get<Button>("version_list_btn");
             btn.clicked += RefreshVersions;
 
-            btn = _cache.Get<Button>("package_list_btn");
-            btn.clicked += () =>
-            {
-                var scope = context.NpmrcModel.GetDeveloper();
-                var token = context.UECConfigModel.GetTokenByUsername(scope);
-
-                GithubAPI.GetUserAllPackages(scope, token, "npm",
-                    list =>
-                    {
-                        foreach (var overview in list)
-                        {
-                            Debug.Log(overview.ToString());
-                        }
-                    });
-            };
+            // btn = _cache.Get<Button>("package_list_btn");
+            // btn.clicked += () =>
+            // {
+            //     var scope = context.NpmrcModel.GetDeveloper();
+            //     var token = context.UECConfigModel.GetTokenByUsername(scope);
+            //
+            //     GithubAPI.GetUserAllPackages(scope, token, "npm",
+            //         list =>
+            //         {
+            //             foreach (var overview in list)
+            //             {
+            //                 Debug.Log(overview.ToString());
+            //             }
+            //         });
+            // };
 
             _versionsRoot = _cache.Get("version_list_ev");
             _versionScrollView = _versionsRoot.Q<ScrollView>();

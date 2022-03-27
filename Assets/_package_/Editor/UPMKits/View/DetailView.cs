@@ -30,6 +30,7 @@ namespace UPMKits
 
         // private Button _applyBtn;
         // private Button _revertBtn;
+        private Button _removeBtn;
 
         protected override void OnInitialize(VisualElement parent)
         {
@@ -81,8 +82,8 @@ namespace UPMKits
                 RefreshNoTip();
             };
 
-            var removeBtn = _cache.Get<Button>("remove_btn");
-            removeBtn.clicked += () =>
+            _removeBtn = _cache.Get<Button>("remove_btn");
+            _removeBtn.clicked += () =>
             {
                 RemoveDependency();
                 RefreshNoTip();
@@ -245,6 +246,12 @@ namespace UPMKits
         private void RemoveDependency()
         {
             var list = context.PackageJsonModel.PackageJsonInfo.DependencyList;
+
+            if (list == null || list.Count <= 0)
+            {
+                return;
+            }
+
             var lastIndex = list.Count - 1;
             list.RemoveAt(lastIndex);
 
@@ -258,6 +265,7 @@ namespace UPMKits
         private void RefreshNoTip()
         {
             _noTip.SetDisplay(_dependenciesList.childCount <= 0);
+            _removeBtn.SetEnabled(_dependenciesList.childCount > 0);
         }
     }
 }
