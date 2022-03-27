@@ -94,7 +94,8 @@ namespace UPMKits
         public PublishConfig publishConfig;
         public Dictionary<string, string> dependencies;
 
-        [JsonIgnore] public List<Dependency> DependencyList;
+        [JsonIgnore]
+        public List<Dependency> DependencyList;
 
         public PackageJsonInfo()
         {
@@ -245,10 +246,10 @@ namespace UPMKits
 
         public string PackageJsonDirFullPath;
 
-        private PackageJsonInfo _previousPackageJsonInfo;
+        // private PackageJsonInfo _previousPackageJsonInfo;
         public PackageJsonInfo PackageJsonInfo { get; private set; }
 
-        private PJEContext Context;
+        private UKDTContext Context;
 
         public Action DirtyAction;
 
@@ -264,26 +265,26 @@ namespace UPMKits
             }
         }
 
-        public PackageJsonModel(PJEContext context)
+        public PackageJsonModel(UKDTContext context)
         {
             Context = context;
             Load();
             IsDirty = false;
-            _previousPackageJsonInfo = new PackageJsonInfo();
-            _previousPackageJsonInfo.Copy(PackageJsonInfo);
+            // _previousPackageJsonInfo = new PackageJsonInfo();
+            // _previousPackageJsonInfo.Copy(PackageJsonInfo);
 
-            var dir = new DirectoryInfo("Assets/_package_");
-            PackageJsonDirFullPath = dir.FullName;
-            
+            // var dir = new DirectoryInfo("Assets/_package_");
+            // PackageJsonDirFullPath = dir.FullName;
+
             var dirPath = Path.GetDirectoryName(PackageJsonPath);
             PackageJsonDirFullPath = Path.GetFullPath(dirPath);
         }
 
-        public bool CheckModify()
-        {
-            IsDirty = PackageJsonInfo.Compare(_previousPackageJsonInfo);
-            return IsDirty;
-        }
+        // public bool CheckModify()
+        // {
+        //     IsDirty = PackageJsonInfo.Compare(_previousPackageJsonInfo);
+        //     return IsDirty;
+        // }
 
         public bool HasPackageJson()
         {
@@ -315,15 +316,15 @@ namespace UPMKits
             Save();
             Revert();
             IsDirty = false;
-            _previousPackageJsonInfo = new PackageJsonInfo();
-            _previousPackageJsonInfo.Copy(PackageJsonInfo);
+            // _previousPackageJsonInfo = new PackageJsonInfo();
+            // _previousPackageJsonInfo.Copy(PackageJsonInfo);
         }
 
         public void Update()
         {
             Init(PackageJsonInfo);
             IsDirty = false;
-            _previousPackageJsonInfo.Copy(PackageJsonInfo);
+            // _previousPackageJsonInfo.Copy(PackageJsonInfo);
         }
 
         private void Init(PackageJsonInfo packageJsonInfo)
@@ -356,15 +357,15 @@ namespace UPMKits
         {
             Load();
             IsDirty = false;
-            _previousPackageJsonInfo = new PackageJsonInfo();
-            _previousPackageJsonInfo.Copy(PackageJsonInfo);
+            // _previousPackageJsonInfo = new PackageJsonInfo();
+            // _previousPackageJsonInfo.Copy(PackageJsonInfo);
         }
 
         public void Apply()
         {
             Save();
             IsDirty = false;
-            _previousPackageJsonInfo.Copy(PackageJsonInfo);
+            // _previousPackageJsonInfo.Copy(PackageJsonInfo);
         }
 
         private void Save()
@@ -378,12 +379,24 @@ namespace UPMKits
             PackageJsonInfo.dependencies.Clear();
             foreach (var dependency in PackageJsonInfo.DependencyList)
             {
+                if (string.IsNullOrEmpty(dependency.key))
+                {
+                    continue;
+                }
+
+                if (PackageJsonInfo.dependencies.ContainsKey(dependency.key))
+                {
+                    Debug.LogError($"package name {dependency.key} already exist!");
+                    continue;
+                }
+
                 PackageJsonInfo.dependencies.Add(dependency.key, dependency.value);
             }
 
+
             if (!HasPackageJson())
             {
-                File.Create(PackageJsonPath).Close();
+                CreateFile(PackageJsonPath);
             }
 
             var json = File.ReadAllText(PackageJsonPath);
@@ -406,6 +419,43 @@ namespace UPMKits
 
             // 使用这种方式需要重新加载文本文件
             // File.WriteAllText(PackageJsonPath, contents);
+        }
+
+        private void CreatePackageStructure()
+        {
+        }
+
+        private void CreateFile(string path)
+        {
+            if (File.Exists(path))
+            {
+                return;
+            }
+
+            var dir = Path.GetDirectoryName(path);
+            if (CreateDirectory(dir))
+            {
+                Debug.Log($"create file {path}");
+                File.Create(path).Close();
+            }
+        }
+
+        private bool CreateDirectory(string path)
+        {
+            if (Directory.Exists(path))
+            {
+                return true;
+            }
+
+            var dir = Path.GetDirectoryName(path);
+            if (CreateDirectory(dir))
+            {
+                Debug.Log($"create dir {path}");
+                Directory.CreateDirectory(path);
+                return true;
+            }
+
+            return false;
         }
     }
 }

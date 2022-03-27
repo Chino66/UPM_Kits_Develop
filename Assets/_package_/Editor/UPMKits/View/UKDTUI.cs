@@ -6,22 +6,22 @@ using UnityEngine.UIElements;
 namespace UPMKits
 {
     /// <summary>
-    /// PJE=PackageJsonEditor
+    /// UKDTUI=UPM Kits Develop Tool
     /// </summary>
-    public class PJEUI : UI
+    public class UKDTUI : UI
     {
-        public static PJEUI CreateUI(VisualElement parent = null)
+        public static UKDTUI CreateUI(VisualElement parent = null)
         {
-            var ui = new PJEUI();
+            var ui = new UKDTUI();
             ui.Initialize(parent);
             return ui;
         }
 
-        public PJEContext Context;
+        public UKDTContext Context;
 
-        private PJEUI()
+        private UKDTUI()
         {
-            Context = new PJEContext();
+            Context = new UKDTContext();
         }
 
         protected override void OnInitialize(VisualElement parent)
@@ -37,12 +37,17 @@ namespace UPMKits
             Add(temp);
 
             AddView<DeveloperView>();
-            AddView<DetailView>();
-            AddView<OperateView>();
+            AddView<PackageEditorView>();
+            AddView<EditorOperateView>();
+            AddView<PackageOperateView>();
         }
 
         public void Refresh()
         {
+            GetView<DeveloperView>().Refresh();
+            GetView<PackageEditorView>().Refresh();
+            GetView<EditorOperateView>().Refresh();
+            GetView<PackageOperateView>().Refresh();
         }
     }
 }

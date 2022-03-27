@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using System.Threading.Tasks;
 using CommandTool;
 
 namespace NPMKits
@@ -11,7 +12,7 @@ namespace NPMKits
             ProcessUtil.Run("npm.cmd", cmd, callback);
         }
 
-        public static async void PublishAsync(string packageJsonFolder, CommandCallback callback)
+        public static async Task PublishAsync(string packageJsonFolder, CommandCallback callback)
         {
             var cmd = $"publish {packageJsonFolder}";
             await ProcessUtil.RunAsync("npm.cmd", cmd, callback);

@@ -1,6 +1,6 @@
 namespace UPMKits
 {
-    public class PJEContext
+    public class UKDTContext
     {
         public UECConfigModel UECConfigModel;
         public PackageJsonModel PackageJsonModel;
@@ -8,7 +8,7 @@ namespace UPMKits
         public GitRepositoryModel GitRepositoryModel;
         public PackageModel PackageModel;
 
-        public PJEContext()
+        public UKDTContext()
         {
             UECConfigModel = new UECConfigModel();
 

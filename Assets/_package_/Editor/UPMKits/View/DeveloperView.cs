@@ -2,21 +2,24 @@ using System.IO;
 using UIElementsKits;
 using UIElementsKits.UIFramework;
 using UnityEditor;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UPMKits
 {
-    public class DeveloperView : View<PJEUI>
+    public class DeveloperView : View<UKDTUI>
     {
         private VisualElementCache _cache;
-        private PJEContext context => UI.Context;
+        private UKDTContext context => UI.Context;
 
         private ScrollView _developerScrollView;
         private VisualElementPool _pool;
         private Label _developer;
-
-        private bool showSelect;
+        private bool _showSelect;
+        private VisualElement _noConfig;
+        private VisualElement _developerList;
+        private Button _selectBtn;
 
         protected override void OnInitialize(VisualElement parent)
         {
@@ -36,22 +39,37 @@ namespace UPMKits
 
             _developer = _cache.Get<Label>("developer_name");
             _developerScrollView = _cache.Get<ScrollView>("developer_list_sv");
-            _developerScrollView.SetDisplay(showSelect);
-            _developerScrollView.parent.SetDisplay(showSelect);
+            _developerList = _developerScrollView.parent;
+            _developerList.SetDisplay(_showSelect);
 
-            var btn = _cache.Get<Button>("select_developer");
-            btn.clicked += () =>
+            _selectBtn = _cache.Get<Button>("select_developer");
+            _selectBtn.clicked += () =>
             {
-                showSelect = !showSelect;
-                _developerScrollView.SetDisplay(showSelect);
-                _developerScrollView.parent.SetDisplay(showSelect);
-                if (showSelect)
+                _showSelect = !_showSelect;
+                _developerList.SetDisplay(_showSelect);
+                if (_showSelect)
                 {
                     ShowSelectDeveloperList();
                 }
             };
 
+            _noConfig = _cache.Get("no_config_tip");
+            _noConfig.SetDisplay(false);
+
+            var btn = _noConfig.Q<Button>("install_btn");
+            btn.clicked += () => { Client.Add("com.chino.github.unity.uec@file:G:/Github/UEC/Assets/_package_"); };
+
+            Refresh();
+        }
+
+        public void Refresh()
+        {
             RefreshDeveloper();
+            var has = context.UECConfigModel.HasConfig();
+            _noConfig.SetDisplay(!has);
+
+            has = has && context.PackageJsonModel.HasPackageJson();
+            _selectBtn.SetEnabled(has);
         }
 
         private void RefreshDeveloper()
@@ -84,7 +102,6 @@ namespace UPMKits
                 button.text = item.Username;
                 _developerScrollView.Add(button);
 
-                // button.clicked += () => { Debug.Log(item.Username); };
                 button.clickable = new Clickable(() =>
                 {
                     Debug.Log(item.Username);
@@ -92,10 +109,6 @@ namespace UPMKits
                     RefreshDeveloper();
                 });
             }
-        }
-
-        public void Refresh()
-        {
         }
     }
 }

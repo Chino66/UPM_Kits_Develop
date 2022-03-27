@@ -10,31 +10,24 @@ using Button = UnityEngine.UIElements.Button;
 
 namespace UPMKits
 {
-    public class DetailView : View<PJEUI>
+    public class PackageEditorView : View<UKDTUI>
     {
         private VisualElementCache _cache;
 
-        private PJEContext context => UI.Context;
+        private UKDTContext context => UI.Context;
 
         private VisualElementPool _pool;
-
         private VisualElement _dependenciesList;
-
         private VisualElement _detailViewRoot;
-
-        private SerializedObject packageJson;
-
         private Label _noTip;
-
         private Button _operateBtn;
-
-        // private Button _applyBtn;
-        // private Button _revertBtn;
         private Button _removeBtn;
+
+        private SerializedObject _packageJson;
 
         protected override void OnInitialize(VisualElement parent)
         {
-            var temp = parent.Q("package_json_root");
+            var temp = parent.Q("package_editor_root");
             temp.parent.Add(Self);
             Add(temp);
             _cache = new VisualElementCache(temp);
@@ -49,7 +42,6 @@ namespace UPMKits
                 textField = element.Q<TextField>("value");
                 textField.bindingPath = "value";
             });
-
             _pool.SetReturnAction(element =>
             {
                 var textField = element.Q<TextField>("key");
@@ -61,7 +53,6 @@ namespace UPMKits
             });
 
             _detailViewRoot = _cache.Get("detail_view_root");
-
             _noTip = _cache.Get<Label>("no_tip");
 
             SetTextField("name_box", "name");
@@ -89,28 +80,12 @@ namespace UPMKits
                 RefreshNoTip();
             };
 
-            // _applyBtn = _cache.Get<Button>("apply_btn");
-            // _applyBtn.clicked += () => { context.PackageJsonModel.Apply(); };
-            //
-            // _revertBtn = _cache.Get<Button>("revert_btn");
-            // _revertBtn.clicked += () =>
-            // {
-            //     context.PackageJsonModel.Revert();
-            //     Refresh();
-            // };
-
             var view = _cache.Get<Button>("view_package_json");
             view.clicked += () => { EditorUtility.RevealInFinder(PackageJsonModel.PackageJsonPath); };
 
             _operateBtn = _cache.Get<Button>("operate_package_json");
 
-            // context.PackageJsonModel.DirtyAction = RefreshEditorOperate;
             Refresh();
-
-            // var btn = new Button();
-            // btn.text = "test";
-            // Self.Add(btn);
-            // btn.clicked += () => { Debug.Log(context.NpmrcModel.HasLocalNpmrc()); };
         }
 
         private void SetTextField(string query, string bindingPath)
@@ -123,40 +98,40 @@ namespace UPMKits
             // });
         }
 
-        private void RefreshEditorOperate()
-        {
-            // var dirty = context.PackageJsonModel.IsDirty;
-            // var dirty = true;
-            // _applyBtn.SetEnabled(dirty);
-            // _revertBtn.SetEnabled(dirty);
-        }
-
         private void RefreshOperate()
         {
-            if (context.PackageJsonModel.HasPackageJson())
+            var has = context.PackageJsonModel.HasPackageJson();
+            if (has)
             {
                 _operateBtn.text = "update";
-                _operateBtn.clickable = new Clickable(() =>
-                {
-                    Debug.Log("update");
-                    context.PackageJsonModel.Update();
-                });
+                _operateBtn.clickable = new Clickable(() => { context.PackageJsonModel.Update(); });
             }
             else
             {
                 _operateBtn.text = "create";
                 _operateBtn.clickable = new Clickable(() =>
                 {
-                    Debug.Log("create");
                     context.PackageJsonModel.Create();
                     AssetDatabase.Refresh();
-                    Refresh();
+                    UI.Refresh();
                 });
             }
+
+            var view = _cache.Get<Button>("view_package_json");
+            view.SetEnabled(has);
         }
 
         public void Refresh()
         {
+            var has = context.UECConfigModel.HasConfig();
+
+            Self.SetDisplay(has);
+
+            if (!has)
+            {
+                return;
+            }
+
             RefreshOperate();
 
             if (context.PackageJsonModel.HasPackageJson() == false)
@@ -176,40 +151,39 @@ namespace UPMKits
             }
 
             Self.Unbind();
-            packageJson = new SerializedObject(context.PackageJsonModel.PackageJsonInfo);
-            Self.Bind(packageJson);
+            _packageJson = new SerializedObject(context.PackageJsonModel.PackageJsonInfo);
+            Self.Bind(_packageJson);
 
-            var dependencies = packageJson.FindProperty("DependencyList");
+            var dependencies = _packageJson.FindProperty("DependencyList");
             for (int i = 0; i < dependencies.arraySize; i++)
             {
                 NewDependency(dependencies, i);
             }
 
-            RefreshEditorOperate();
             RefreshNoTip();
             RefreshFixInfo();
         }
 
         private void RefreshFixInfo()
         {
-            var repository = packageJson.FindProperty("repository");
+            var repository = _packageJson.FindProperty("repository");
             var sp = repository.FindPropertyRelative("url");
             var label = _cache.Get("repository_box").Q<Label>("url");
             label.bindingPath = "url";
             label.BindProperty(sp);
 
-            var bugs = packageJson.FindProperty("bugs");
+            var bugs = _packageJson.FindProperty("bugs");
             sp = bugs.FindPropertyRelative("url");
             label = _cache.Get("bugs_box").Q<Label>("url");
             label.bindingPath = "url";
             label.BindProperty(sp);
 
-            var homepage = packageJson.FindProperty("homepage");
+            var homepage = _packageJson.FindProperty("homepage");
             label = _cache.Get("homepage_box").Q<Label>("url");
             label.bindingPath = "url";
             label.BindProperty(homepage);
 
-            var publishConfig = packageJson.FindProperty("publishConfig");
+            var publishConfig = _packageJson.FindProperty("publishConfig");
             sp = publishConfig.FindPropertyRelative("registry");
             label = _cache.Get("registry_box").Q<Label>("url");
             label.bindingPath = "url";
@@ -219,8 +193,8 @@ namespace UPMKits
         private void AddDependency()
         {
             context.PackageJsonModel.PackageJsonInfo.DependencyList.Add(new Dependency());
-            packageJson.Update();
-            var dependencies = packageJson.FindProperty("DependencyList");
+            _packageJson.Update();
+            var dependencies = _packageJson.FindProperty("DependencyList");
 
             NewDependency(dependencies, dependencies.arraySize - 1);
         }
@@ -255,7 +229,7 @@ namespace UPMKits
             var lastIndex = list.Count - 1;
             list.RemoveAt(lastIndex);
 
-            packageJson.Update();
+            _packageJson.Update();
 
             var item = _dependenciesList.ElementAt(lastIndex);
             _pool.Return(item);
