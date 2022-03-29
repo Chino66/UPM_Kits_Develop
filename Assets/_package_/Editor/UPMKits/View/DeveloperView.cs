@@ -1,4 +1,5 @@
 using System.IO;
+using PackageKits;
 using UIElementsKits;
 using UIElementsKits.UIFramework;
 using UnityEditor;
@@ -57,9 +58,36 @@ namespace UPMKits
             _noConfig.SetDisplay(false);
 
             var btn = _noConfig.Q<Button>("install_btn");
-            btn.clicked += () => { Client.Add("com.chino.github.unity.uec@file:G:/Github/UEC/Assets/_package_"); };
+            btn.clicked += InstallUECAsync;
 
             Refresh();
+        }
+
+        // private void InstallUEC()
+        // {
+        //     //Client.Add("com.chino.github.unity.uec@file:G:/Github/UEC/Assets/_package_");
+        //     InstallUECAsync();
+        // }
+
+        private async void InstallUECAsync()
+        {
+            var rst = await PackageUtils.HasPackageAsync("com.chino.github.unity.uec");
+            Debug.Log($"1 rst is {rst}");
+            if (rst)
+            {
+                Refresh();
+                return;
+            }
+
+            rst = await PackageUtils.AddPackageAsync("com.chino.github.unity.uec@file:G:/Github/UEC/Assets/_package_",
+                addRst => { });
+
+            Debug.Log($"2 rst is {rst}");
+            if (rst)
+            {
+                Refresh();
+                return;
+            }
         }
 
         public void Refresh()
