@@ -322,6 +322,11 @@ namespace UPMKits
 
         public void Update()
         {
+            if (HasPackageJson() == false)
+            {
+                return;
+            }
+
             Init(PackageJsonInfo);
             IsDirty = false;
             // _previousPackageJsonInfo.Copy(PackageJsonInfo);
@@ -336,21 +341,17 @@ namespace UPMKits
             var repository = packageJsonInfo.repository;
             repository.type = "git";
             repository.url = $"git+https://github.com/{developer}/{repositoryName}.git";
-            // packageJsonInfo.repository = repository;
 
             // Bugs
             var bugs = packageJsonInfo.bugs;
             bugs.url = $"https://github.com/{developer}/{repositoryName}/issues";
-            // packageJsonInfo.bugs = bugs;
 
             // homepage
             packageJsonInfo.homepage = $"https://github.com/{developer}/{repositoryName}#readme";
-            // packageJsonInfo.homepage = homepage;
 
             // publishConfig
             var publishConfig = packageJsonInfo.publishConfig;
             publishConfig.registry = $"https://npm.pkg.github.com/@{developer}";
-            // packageJsonInfo.publishConfig = publishConfig;
         }
 
         public void Revert()

@@ -43,6 +43,16 @@ namespace UPMKits
             return File.Exists(NpmrcLocalPath);
         }
 
+        public bool HasGlobalNpmrc()
+        {
+            return File.Exists(NpmrcPath);
+        }
+
+        public bool HasNpmrc()
+        {
+            return HasGlobalNpmrc() || HasLocalNpmrc();
+        }
+
         public string GetDeveloper()
         {
             if (HasLocalNpmrc())

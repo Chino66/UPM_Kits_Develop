@@ -1,4 +1,5 @@
 using System.IO;
+using PackageKits;
 using UIElementsKits.UIFramework;
 using UnityEditor;
 using UnityEngine.UIElements;
@@ -36,10 +37,80 @@ namespace UPMKits
             AddStyleSheet(styleSheet);
             Add(temp);
 
+            AddView<CheckView>();
             AddView<DeveloperView>();
             AddView<PackageEditorView>();
             AddView<EditorOperateView>();
             AddView<PackageOperateView>();
+
+            Start();
+        }
+
+        private async void Start()
+        {
+            var hasConfig = Context.UECConfigModel.HasConfig();
+            if (hasConfig == false)
+            {
+                var hasInstall = await PackageUtils.HasPackageAsync("com.chino.github.unity.uec");
+                if (hasInstall)
+                {
+                    Context.StateMachine.ChangeState(UKDTState.ConfigUECTip, ".uecconfig not config, please");
+                    return;
+                }
+                else
+                {
+                    Context.StateMachine.ChangeState(UKDTState.InstallUECTip, ".uecconfig");
+                    return;
+                }
+            }
+
+
+            var hasNpmrc = Context.NpmrcModel.HasNpmrc();
+            if (hasNpmrc == false)
+            {
+                var hasInstall = await PackageUtils.HasPackageAsync("com.chino.github.unity.uec");
+                if (hasInstall)
+                {
+                    Context.StateMachine.ChangeState(UKDTState.ConfigUECTip, ".npmrc not config, please");
+                    return;
+                }
+                else
+                {
+                    Context.StateMachine.ChangeState(UKDTState.InstallUECTip, ".npmrc");
+                    return;
+                }
+            }
+
+            var hasDeveloper = Context.NpmrcModel.GetDeveloper() != "* None *";
+            if (hasDeveloper == false)
+            {
+                var hasInstall = await PackageUtils.HasPackageAsync("com.chino.github.unity.uec");
+                if (hasInstall)
+                {
+                    Context.StateMachine.ChangeState(UKDTState.ConfigUECTip, "no developer, please");
+                    return;
+                }
+                else
+                {
+                    Context.StateMachine.ChangeState(UKDTState.InstallUECTip, ".npmrc");
+                    return;
+                }
+            }
+
+            var hasPackageJson = Context.PackageJsonModel.HasPackageJson();
+            if (hasPackageJson == false)
+            {
+                Context.StateMachine.ChangeState(UKDTState.NoPackageJson);
+                return;
+            }
+            
+            Context.StateMachine.ChangeState(UKDTState.EditorPackageJson);
+
+            
+            // _noDeveloperTip.SetDisplay(!hasDeveloper);
+
+            // var has = hasConfig && context.PackageJsonModel.HasPackageJson() && hasDeveloper;
+            // _selectBtn.SetEnabled(has);
         }
 
         public void Refresh()

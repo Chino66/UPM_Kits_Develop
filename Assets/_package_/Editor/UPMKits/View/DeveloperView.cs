@@ -1,5 +1,7 @@
+using System;
 using System.IO;
 using PackageKits;
+using StateMachineKits;
 using UIElementsKits;
 using UIElementsKits.UIFramework;
 using UnityEditor;
@@ -13,12 +15,12 @@ namespace UPMKits
     {
         private VisualElementCache _cache;
         private UKDTContext context => UI.Context;
+        private StateMachine _stateMachine => UI.Context.StateMachine;
 
         private ScrollView _developerScrollView;
         private VisualElementPool _pool;
         private Label _developer;
         private bool _showSelect;
-        private VisualElement _noConfig;
         private VisualElement _developerList;
         private Button _selectBtn;
 
@@ -44,60 +46,39 @@ namespace UPMKits
             _developerList.SetDisplay(_showSelect);
 
             _selectBtn = _cache.Get<Button>("select_developer");
-            _selectBtn.clicked += () =>
+            _selectBtn.clicked += ToggleSelectList;
+
+            var stateHandler = new StateHandler();
+            var group = new StateGroup("DeveloperView");
+            group.AddState(UKDTState.InstallUECTip);
+            group.AddState(UKDTState.ConfigUECTip);
+            
+            stateHandler.AddStateGroupAction(group, (args) =>
             {
-                _showSelect = !_showSelect;
-                _developerList.SetDisplay(_showSelect);
-                if (_showSelect)
-                {
-                    ShowSelectDeveloperList();
-                }
-            };
-
-            _noConfig = _cache.Get("no_config_tip");
-            _noConfig.SetDisplay(false);
-
-            var btn = _noConfig.Q<Button>("install_btn");
-            btn.clicked += InstallUECAsync;
-
+                Self.SetDisplay(false);
+            });
+            stateHandler.AddOtherStateAction((args) =>
+            {
+                Self.SetDisplay(true);
+            });
+            _stateMachine.AddHandler(stateHandler);
+            
             Refresh();
         }
 
-        // private void InstallUEC()
-        // {
-        //     //Client.Add("com.chino.github.unity.uec@file:G:/Github/UEC/Assets/_package_");
-        //     InstallUECAsync();
-        // }
-
-        private async void InstallUECAsync()
+        private void ToggleSelectList()
         {
-            var rst = await PackageUtils.HasPackageAsync("com.chino.github.unity.uec");
-            Debug.Log($"1 rst is {rst}");
-            if (rst)
+            _showSelect = !_showSelect;
+            _developerList.SetDisplay(_showSelect);
+            if (_showSelect)
             {
-                Refresh();
-                return;
-            }
-
-            rst = await PackageUtils.AddPackageAsync("com.chino.github.unity.uec@file:G:/Github/UEC/Assets/_package_",
-                addRst => { });
-
-            Debug.Log($"2 rst is {rst}");
-            if (rst)
-            {
-                Refresh();
-                return;
+                ShowSelectDeveloperList();
             }
         }
-
+        
         public void Refresh()
         {
             RefreshDeveloper();
-            var has = context.UECConfigModel.HasConfig();
-            _noConfig.SetDisplay(!has);
-
-            has = has && context.PackageJsonModel.HasPackageJson();
-            _selectBtn.SetEnabled(has);
         }
 
         private void RefreshDeveloper()
@@ -132,8 +113,9 @@ namespace UPMKits
 
                 button.clickable = new Clickable(() =>
                 {
-                    Debug.Log(item.Username);
                     context.NpmrcModel.ChangeDeveloper(item.Username);
+                    context.PackageJsonModel.Update();
+                    ToggleSelectList();
                     RefreshDeveloper();
                 });
             }

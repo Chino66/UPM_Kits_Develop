@@ -1,7 +1,10 @@
+using StateMachineKits;
+
 namespace UPMKits
 {
     public class UKDTContext
     {
+        public StateMachine StateMachine;
         public UECConfigModel UECConfigModel;
         public PackageJsonModel PackageJsonModel;
         public NpmrcModel NpmrcModel;
@@ -10,6 +13,8 @@ namespace UPMKits
 
         public UKDTContext()
         {
+            StateMachine = new StateMachine();
+            
             UECConfigModel = new UECConfigModel();
 
             PackageJsonModel = new PackageJsonModel(this);

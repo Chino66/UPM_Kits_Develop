@@ -1,4 +1,5 @@
 using System.IO;
+using StateMachineKits;
 using UIElementsKits;
 using UIElementsKits.UIFramework;
 using UnityEditor;
@@ -15,7 +16,8 @@ namespace UPMKits
         private VisualElementCache _cache;
 
         private UKDTContext context => UI.Context;
-
+        private StateMachine _stateMachine => UI.Context.StateMachine;
+        
         private VisualElementPool _pool;
         private VisualElement _dependenciesList;
         private VisualElement _detailViewRoot;
@@ -84,8 +86,45 @@ namespace UPMKits
             view.clicked += () => { EditorUtility.RevealInFinder(PackageJsonModel.PackageJsonPath); };
 
             _operateBtn = _cache.Get<Button>("operate_package_json");
+            _operateBtn.clickable = new Clickable(() =>
+            {
+                PackageStructureGenerator.Generate();
+                context.PackageJsonModel.Create();
+                AssetDatabase.Refresh();
+                UI.Refresh();
+            });
+            
+            var stateHandler = new StateHandler();
+            var group = new StateGroup("DeveloperView");
+            group.AddState(UKDTState.InstallUECTip);
+            group.AddState(UKDTState.ConfigUECTip);
+            
+            stateHandler.AddStateGroupAction(group, (args) =>
+            {
+                Self.SetDisplay(false);
+            });
+            stateHandler.AddStateAction(UKDTState.NoPackageJson, (args) =>
+            {
+                _operateBtn.SetDisplay(true);
+                var view = _cache.Get<Button>("view_package_json");
+                view.SetEnabled(false);
+                _detailViewRoot.SetDisplay(false);
+            });
+            stateHandler.AddStateAction(UKDTState.EditorPackageJson, (args) =>
+            {
+                _operateBtn.SetDisplay(false);
+                var view = _cache.Get<Button>("view_package_json");
+                view.SetEnabled(true);
+                _detailViewRoot.SetDisplay(true);
+                Refresh();
+            });
+            stateHandler.AddOtherStateAction((args) =>
+            {
+                Self.SetDisplay(true);
+            });
+            _stateMachine.AddHandler(stateHandler);
 
-            Refresh();
+            // Refresh();
         }
 
         private void SetTextField(string query, string bindingPath)
@@ -98,49 +137,35 @@ namespace UPMKits
             // });
         }
 
-        private void RefreshOperate()
-        {
-            var has = context.PackageJsonModel.HasPackageJson();
-            if (has)
-            {
-                _operateBtn.text = "update";
-                _operateBtn.clickable = new Clickable(() => { context.PackageJsonModel.Update(); });
-            }
-            else
-            {
-                _operateBtn.text = "create";
-                _operateBtn.clickable = new Clickable(() =>
-                {
-                    context.PackageJsonModel.Create();
-                    AssetDatabase.Refresh();
-                    UI.Refresh();
-                });
-            }
-
-            var view = _cache.Get<Button>("view_package_json");
-            view.SetEnabled(has);
-        }
+        // private void RefreshOperate()
+        // {
+        //     var has = context.PackageJsonModel.HasPackageJson();
+        //     _operateBtn.SetDisplay(!has);
+        //
+        //     var view = _cache.Get<Button>("view_package_json");
+        //     view.SetEnabled(has);
+        // }
 
         public void Refresh()
         {
-            var has = context.UECConfigModel.HasConfig();
+            // var has = context.UECConfigModel.HasConfig();
+            //
+            // Self.SetDisplay(has);
+            //
+            // if (!has)
+            // {
+            //     return;
+            // }
 
-            Self.SetDisplay(has);
+            // RefreshOperate();
 
-            if (!has)
-            {
-                return;
-            }
-
-            RefreshOperate();
-
-            if (context.PackageJsonModel.HasPackageJson() == false)
-            {
-                _detailViewRoot.SetDisplay(false);
-                return;
-            }
-
-            _detailViewRoot.SetDisplay(true);
+            // if (context.PackageJsonModel.HasPackageJson() == false)
+            // {
+            //     _detailViewRoot.SetDisplay(false);
+            //     return;
+            // }
+            //
+            // _detailViewRoot.SetDisplay(true);
 
             while (_dependenciesList.childCount > 0)
             {
