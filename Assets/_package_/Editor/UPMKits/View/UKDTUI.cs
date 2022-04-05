@@ -43,10 +43,10 @@ namespace UPMKits
             AddView<EditorOperateView>();
             AddView<PackageOperateView>();
 
-            Start();
+            RefreshState();
         }
 
-        private async void Start()
+        private async void RefreshState()
         {
             var hasConfig = Context.UECConfigModel.HasConfig();
             if (hasConfig == false)
@@ -103,10 +103,10 @@ namespace UPMKits
                 Context.StateMachine.ChangeState(UKDTState.NoPackageJson);
                 return;
             }
-            
+
             Context.StateMachine.ChangeState(UKDTState.EditorPackageJson);
 
-            
+
             // _noDeveloperTip.SetDisplay(!hasDeveloper);
 
             // var has = hasConfig && context.PackageJsonModel.HasPackageJson() && hasDeveloper;
@@ -115,6 +115,7 @@ namespace UPMKits
 
         public void Refresh()
         {
+            RefreshState();
             GetView<DeveloperView>().Refresh();
             GetView<PackageEditorView>().Refresh();
             GetView<EditorOperateView>().Refresh();

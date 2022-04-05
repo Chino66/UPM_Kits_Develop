@@ -92,6 +92,7 @@ namespace UPMKits
                 context.PackageJsonModel.Create();
                 AssetDatabase.Refresh();
                 UI.Refresh();
+                // Refresh();
             });
             
             var stateHandler = new StateHandler();
@@ -131,42 +132,17 @@ namespace UPMKits
         {
             var textField = _cache.Get(query).Q<TextField>();
             textField.bindingPath = bindingPath;
-            // textField.RegisterValueChangedCallback(evt =>
-            // {
-            //     context.PackageJsonModel.CheckModify();
-            // });
         }
-
-        // private void RefreshOperate()
-        // {
-        //     var has = context.PackageJsonModel.HasPackageJson();
-        //     _operateBtn.SetDisplay(!has);
-        //
-        //     var view = _cache.Get<Button>("view_package_json");
-        //     view.SetEnabled(has);
-        // }
 
         public void Refresh()
         {
-            // var has = context.UECConfigModel.HasConfig();
-            //
-            // Self.SetDisplay(has);
-            //
-            // if (!has)
-            // {
-            //     return;
-            // }
+            RefreshDepend();
+            RefreshNoTip();
+            RefreshFixInfo();
+        }
 
-            // RefreshOperate();
-
-            // if (context.PackageJsonModel.HasPackageJson() == false)
-            // {
-            //     _detailViewRoot.SetDisplay(false);
-            //     return;
-            // }
-            //
-            // _detailViewRoot.SetDisplay(true);
-
+        private void RefreshDepend()
+        {
             while (_dependenciesList.childCount > 0)
             {
                 var item = _dependenciesList.ElementAt(0);
@@ -184,9 +160,6 @@ namespace UPMKits
             {
                 NewDependency(dependencies, i);
             }
-
-            RefreshNoTip();
-            RefreshFixInfo();
         }
 
         private void RefreshFixInfo()

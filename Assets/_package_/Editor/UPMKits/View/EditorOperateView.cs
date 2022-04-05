@@ -1,4 +1,5 @@
 using System.IO;
+using StateMachineKits;
 using UIElementsKits;
 using UIElementsKits.UIFramework;
 using UnityEditor;
@@ -15,7 +16,7 @@ namespace UPMKits
         private VisualElementCache _cache;
 
         private UKDTContext context => UI.Context;
-
+        
         private Button _applyBtn;
         private Button _revertBtn;
 
@@ -32,13 +33,20 @@ namespace UPMKits
             _revertBtn = _cache.Get<Button>("revert_btn");
             _revertBtn.clicked += () => { context.PackageJsonModel.Revert(); };
 
+            var stateHandler = new StateHandler();
+            stateHandler.AddStateAction(UKDTState.EditorPackageJson, (args) =>
+            {
+                Self.SetDisplay(true);
+            });
+            UI.Context.StateMachine.AddHandler(stateHandler);
+            
             Refresh();
         }
 
         public void Refresh()
         {
-            var has = context.UECConfigModel.HasConfig() && context.PackageJsonModel.HasPackageJson();
-            Self.SetDisplay(has);
+            // var has = context.UECConfigModel.HasConfig() && context.PackageJsonModel.HasPackageJson();
+            // Self.SetDisplay(has);
         }
     }
 }

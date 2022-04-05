@@ -52,18 +52,22 @@ namespace UPMKits
             var group = new StateGroup("DeveloperView");
             group.AddState(UKDTState.InstallUECTip);
             group.AddState(UKDTState.ConfigUECTip);
-            
-            stateHandler.AddStateGroupAction(group, (args) =>
-            {
-                Self.SetDisplay(false);
-            });
-            stateHandler.AddOtherStateAction((args) =>
-            {
-                Self.SetDisplay(true);
-            });
+
+            stateHandler.AddStateGroupAction(group, (args) => { Self.SetDisplay(false); });
+            stateHandler.AddOtherStateAction((args) => { Self.SetDisplay(true); });
             _stateMachine.AddHandler(stateHandler);
-            
+
             Refresh();
+        }
+
+        public void Refresh()
+        {
+            RefreshDeveloper();
+        }
+
+        private void RefreshDeveloper()
+        {
+            _developer.text = context.NpmrcModel.GetDeveloper();
         }
 
         private void ToggleSelectList()
@@ -74,16 +78,6 @@ namespace UPMKits
             {
                 ShowSelectDeveloperList();
             }
-        }
-        
-        public void Refresh()
-        {
-            RefreshDeveloper();
-        }
-
-        private void RefreshDeveloper()
-        {
-            _developer.text = context.NpmrcModel.GetDeveloper();
         }
 
         private void ShowSelectDeveloperList()

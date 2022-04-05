@@ -34,7 +34,7 @@ namespace UPMKits
             var openTip = _cache.Get("open_tip");
             openTip.SetDisplay(false);
             btn = openTip.Q<Button>("open_btn");
-            btn.clicked += () => { UKDTWindow.OpenUEC(); };
+            btn.clicked += UKDTWindow.OpenUEC;
 
             var stateHandler = new StateHandler();
             stateHandler.AddStateAction(UKDTState.InstallUECTip, (args) =>
