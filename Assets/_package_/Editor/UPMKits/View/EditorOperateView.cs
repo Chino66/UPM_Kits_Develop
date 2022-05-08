@@ -16,7 +16,7 @@ namespace UPMKits
         private VisualElementCache _cache;
 
         private UKDTContext context => UI.Context;
-        
+
         private Button _applyBtn;
         private Button _revertBtn;
 
@@ -28,18 +28,15 @@ namespace UPMKits
             _cache = new VisualElementCache(temp);
 
             _applyBtn = _cache.Get<Button>("apply_btn");
-            _applyBtn.clicked += () => { context.PackageJsonModel.Apply(); };
+            _applyBtn.clicked += OnApply;
 
             _revertBtn = _cache.Get<Button>("revert_btn");
             _revertBtn.clicked += () => { context.PackageJsonModel.Revert(); };
 
             var stateHandler = new StateHandler();
-            stateHandler.AddStateAction(UKDTState.EditorPackageJson, (args) =>
-            {
-                Self.SetDisplay(true);
-            });
+            stateHandler.AddStateAction(UKDTState.EditorPackageJson, (args) => { Self.SetDisplay(true); });
             UI.Context.StateMachine.AddHandler(stateHandler);
-            
+
             Refresh();
         }
 
@@ -47,6 +44,15 @@ namespace UPMKits
         {
             // var has = context.UECConfigModel.HasConfig() && context.PackageJsonModel.HasPackageJson();
             // Self.SetDisplay(has);
+        }
+
+        private void OnApply()
+        {
+            // todo process
+            // 1. check display name changed
+            // 2. regenerate .cs .asmdef
+            context.PackageJsonModel.Apply();
+            AssetDatabase.Refresh();
         }
     }
 }

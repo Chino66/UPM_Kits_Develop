@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using DataBinding;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
@@ -12,8 +13,8 @@ namespace UPMKits
     [Serializable]
     public class Repository
     {
-        public string type;
-        public string url;
+        public string type { get; set; }
+        public string url { get; set; }
 
         public void Copy(Repository repository)
         {
@@ -30,7 +31,7 @@ namespace UPMKits
     [Serializable]
     public class Bugs
     {
-        public string url;
+        public string url { get; set; }
 
         public void Copy(Bugs bugs)
         {
@@ -46,7 +47,7 @@ namespace UPMKits
     [Serializable]
     public class PublishConfig
     {
-        public string registry;
+        public string registry { get; set; }
 
         public void Copy(PublishConfig publishConfig)
         {
@@ -62,8 +63,8 @@ namespace UPMKits
     [Serializable]
     public class Dependency
     {
-        public string key;
-        public string value;
+        public string key { get; set; }
+        public string value { get; set; }
 
         public void Copy(Dependency dependency)
         {
@@ -78,24 +79,24 @@ namespace UPMKits
     }
 
 
-    public class PackageJsonInfo : ScriptableObject
+    public class PackageJsonInfo
     {
-        public string name;
-        public string displayName;
-        public string version;
-        public string unity;
-        public string description;
-        public string type;
-        public string author;
-        public string license;
-        public Repository repository;
-        public Bugs bugs;
-        public string homepage;
-        public PublishConfig publishConfig;
-        public Dictionary<string, string> dependencies;
+        public string name { get; set; }
+        public string displayName { get; set; }
+        public string version { get; set; }
+        public string unity { get; set; }
+        public string description { get; set; }
+        public string type { get; set; }
+        public string author { get; set; }
+        public string license { get; set; }
+        public Repository repository { get; set; }
+        public Bugs bugs { get; set; }
+        public string homepage { get; set; }
+        public PublishConfig publishConfig { get; set; }
+        public Dictionary<string, string> dependencies { get; set; }
 
         [JsonIgnore]
-        public List<Dependency> DependencyList;
+        public List<Dependency> DependencyList; 
 
         public PackageJsonInfo()
         {

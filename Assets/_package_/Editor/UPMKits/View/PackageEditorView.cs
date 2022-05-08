@@ -1,6 +1,8 @@
 using System.IO;
+using DataBinding;
 using StateMachineKits;
 using UIElementsKits;
+using UIElementsKits.DataBinding;
 using UIElementsKits.UIFramework;
 using UnityEditor;
 using UnityEditor.UIElements;
@@ -17,7 +19,7 @@ namespace UPMKits
 
         private UKDTContext context => UI.Context;
         private StateMachine _stateMachine => UI.Context.StateMachine;
-        
+
         private VisualElementPool _pool;
         private VisualElement _dependenciesList;
         private VisualElement _detailViewRoot;
@@ -25,7 +27,8 @@ namespace UPMKits
         private Button _operateBtn;
         private Button _removeBtn;
 
-        private SerializedObject _packageJson;
+        // private SerializedObject _packageJson;
+        private Binding _packageJson;
 
         protected override void OnInitialize(VisualElement parent)
         {
@@ -57,15 +60,6 @@ namespace UPMKits
             _detailViewRoot = _cache.Get("detail_view_root");
             _noTip = _cache.Get<Label>("no_tip");
 
-            SetTextField("name_box", "name");
-            SetTextField("displayName_box", "displayName");
-            SetTextField("version_box", "version");
-            SetTextField("unity_box", "unity");
-            SetTextField("description_box", "description");
-            SetTextField("type_box", "type");
-            SetTextField("author_box", "author");
-            SetTextField("license_box", "license");
-
             _dependenciesList = _cache.Get("dependencies_list").Q("items");
 
             var addBtn = _cache.Get<Button>("add_btn");
@@ -94,16 +88,13 @@ namespace UPMKits
                 UI.Refresh();
                 // Refresh();
             });
-            
+
             var stateHandler = new StateHandler();
             var group = new StateGroup("DeveloperView");
             group.AddState(UKDTState.InstallUECTip);
             group.AddState(UKDTState.ConfigUECTip);
-            
-            stateHandler.AddStateGroupAction(group, (args) =>
-            {
-                Self.SetDisplay(false);
-            });
+
+            stateHandler.AddStateGroupAction(group, (args) => { Self.SetDisplay(false); });
             stateHandler.AddStateAction(UKDTState.NoPackageJson, (args) =>
             {
                 _operateBtn.SetDisplay(true);
@@ -119,10 +110,7 @@ namespace UPMKits
                 _detailViewRoot.SetDisplay(true);
                 Refresh();
             });
-            stateHandler.AddOtherStateAction((args) =>
-            {
-                Self.SetDisplay(true);
-            });
+            stateHandler.AddOtherStateAction((args) => { Self.SetDisplay(true); });
             _stateMachine.AddHandler(stateHandler);
 
             // Refresh();
@@ -132,6 +120,19 @@ namespace UPMKits
         {
             var textField = _cache.Get(query).Q<TextField>();
             textField.bindingPath = bindingPath;
+            textField.value = bindingPath;
+        }
+
+        private void DisplayNameChangeListen()
+        {
+            var textField = _cache.Get("displayName_box").Q<TextField>();
+            textField.RegisterValueChangedCallback(evt =>
+            {
+                if ((string.IsNullOrEmpty(evt.previousValue) || evt.previousValue == "") && evt.newValue != "")
+                {
+                    // display name changed
+                }
+            });
         }
 
         public void Refresh()
@@ -151,68 +152,72 @@ namespace UPMKits
                 _dependenciesList.RemoveAt(0);
             }
 
-            Self.Unbind();
-            _packageJson = new SerializedObject(context.PackageJsonModel.PackageJsonInfo);
-            Self.Bind(_packageJson);
+            _packageJson = new Binding(context.PackageJsonModel.PackageJsonInfo);
 
-            var dependencies = _packageJson.FindProperty("DependencyList");
-            for (int i = 0; i < dependencies.arraySize; i++)
+            _packageJson.RegisterPostSetEvent<string>("name", (value) =>
             {
-                NewDependency(dependencies, i);
+                Debug.Log($"value is {value}");
+                Debug.Log(
+                    $"context.PackageJsonModel.PackageJsonInfo.name is {context.PackageJsonModel.PackageJsonInfo.name}");
+            });
+            RefreshTextField();
+
+            var dependencies = context.PackageJsonModel.PackageJsonInfo.DependencyList;
+            for (int i = 0; i < dependencies.Count; i++)
+            {
+                NewDependency(dependencies[i]);
             }
+        }
+
+        private void RefreshTextField()
+        {
+            SetTextField("name_box", "name");
+            SetTextField("displayName_box", "displayName");
+            SetTextField("version_box", "version");
+            SetTextField("unity_box", "unity");
+            SetTextField("description_box", "description");
+            SetTextField("type_box", "type");
+            SetTextField("author_box", "author");
+            SetTextField("license_box", "license");
+            _packageJson.Bind(Self);
         }
 
         private void RefreshFixInfo()
         {
-            var repository = _packageJson.FindProperty("repository");
-            var sp = repository.FindPropertyRelative("url");
+            var repository = _packageJson.FindBinding("repository");
             var label = _cache.Get("repository_box").Q<Label>("url");
             label.bindingPath = "url";
-            label.BindProperty(sp);
+            repository.Bind(label);
 
-            var bugs = _packageJson.FindProperty("bugs");
-            sp = bugs.FindPropertyRelative("url");
+            var bugs = _packageJson.FindBinding("bugs");
             label = _cache.Get("bugs_box").Q<Label>("url");
             label.bindingPath = "url";
-            label.BindProperty(sp);
+            bugs.Bind(label);
 
-            var homepage = _packageJson.FindProperty("homepage");
             label = _cache.Get("homepage_box").Q<Label>("url");
-            label.bindingPath = "url";
-            label.BindProperty(homepage);
+            label.bindingPath = "homepage";
+            _packageJson.Bind(label);
 
-            var publishConfig = _packageJson.FindProperty("publishConfig");
-            sp = publishConfig.FindPropertyRelative("registry");
+
+            var publishConfig = _packageJson.FindBinding("publishConfig");
             label = _cache.Get("registry_box").Q<Label>("url");
             label.bindingPath = "url";
-            label.BindProperty(sp);
+            publishConfig.Bind(label);
         }
 
         private void AddDependency()
         {
-            context.PackageJsonModel.PackageJsonInfo.DependencyList.Add(new Dependency());
-            _packageJson.Update();
-            var dependencies = _packageJson.FindProperty("DependencyList");
-
-            NewDependency(dependencies, dependencies.arraySize - 1);
+            var dependency = new Dependency();
+            context.PackageJsonModel.PackageJsonInfo.DependencyList.Add(dependency);
+            NewDependency(dependency);
         }
 
-        private void NewDependency(SerializedProperty dependencies, int index)
+        private void NewDependency(Dependency dependency)
         {
             var element = _pool.Get();
             _dependenciesList.Add(element);
-            var dependency = dependencies.GetArrayElementAtIndex(index);
-            BindDependency(element, dependency);
-        }
-
-        private void BindDependency(VisualElement element, SerializedProperty dependency)
-        {
-            var key = element.Q<TextField>("key");
-            var value = element.Q<TextField>("value");
-            var property = dependency.FindPropertyRelative("key");
-            key.BindProperty(property);
-            property = dependency.FindPropertyRelative("value");
-            value.BindProperty(property);
+            var dependencyBinding = dependency.GetBinding();
+            dependencyBinding.Bind(element);
         }
 
         private void RemoveDependency()
@@ -226,8 +231,6 @@ namespace UPMKits
 
             var lastIndex = list.Count - 1;
             list.RemoveAt(lastIndex);
-
-            _packageJson.Update();
 
             var item = _dependenciesList.ElementAt(lastIndex);
             _pool.Return(item);

@@ -1,7 +1,10 @@
 using System.IO;
+using DataBinding;
 using PackageKits;
+using UIElementsKits;
 using UIElementsKits.UIFramework;
 using UnityEditor;
+using UnityEngine;
 using UnityEngine.UIElements;
 
 namespace UPMKits
@@ -45,6 +48,40 @@ namespace UPMKits
 
             RefreshState();
         }
+
+        /*private void BindingTest()
+        {
+            var _packageJson = Context.PackageJsonModel.PackageJsonInfo.Binding;
+            var root = new VisualElement();
+
+            var label = new Label();
+            label.text = Context.PackageJsonModel.PackageJsonInfo.name;
+            label.bindingPath = "name";
+            _packageJson.Bind(label);
+
+            var tf = new TextField();
+            tf.value = "777";
+            tf.bindingPath = "name";
+            _packageJson.Bind(tf);
+
+
+            var button = new Button();
+            button.text = "888";
+            button.clicked += () =>
+            {
+                Context.PackageJsonModel.PackageJsonInfo.name = "ssssssssss";
+
+                Debug.Log("button click");
+            };
+
+
+            root.Add(button);
+            root.Add(label);
+            root.Add(tf);
+
+
+            Add(root);
+        }*/
 
         private async void RefreshState()
         {
