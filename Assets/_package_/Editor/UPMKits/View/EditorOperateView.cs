@@ -28,31 +28,42 @@ namespace UPMKits
             _cache = new VisualElementCache(temp);
 
             _applyBtn = _cache.Get<Button>("apply_btn");
-            _applyBtn.clicked += OnApply;
+            _applyBtn.clicked += () =>
+            {
+                context.PackageJsonModel.Apply();
+                AssetDatabase.Refresh();
+                UI.Refresh();
+            };
 
             _revertBtn = _cache.Get<Button>("revert_btn");
-            _revertBtn.clicked += () => { context.PackageJsonModel.Revert(); };
+            _revertBtn.clicked += () =>
+            {
+                context.PackageJsonModel.Revert();
+                UI.Refresh();
+            };
 
             var stateHandler = new StateHandler();
-            stateHandler.AddStateAction(UKDTState.EditorPackageJson, (args) => { Self.SetDisplay(true); });
+            stateHandler.AddStateAction(UKDTState.EditorPackageJson,
+                (args) =>
+                {
+                    Self.SetDisplay(true);
+                    context.PackageJsonModel.DirtyAction += (isDirty) =>
+                    {
+                        _applyBtn.SetEnabled(isDirty);
+                        _revertBtn.SetEnabled(isDirty);
+                    };
+                    Refresh();
+                });
             UI.Context.StateMachine.AddHandler(stateHandler);
-
-            Refresh();
+            
+            Self.SetDisplay(false);
         }
 
         public void Refresh()
         {
-            // var has = context.UECConfigModel.HasConfig() && context.PackageJsonModel.HasPackageJson();
-            // Self.SetDisplay(has);
-        }
-
-        private void OnApply()
-        {
-            // todo process
-            // 1. check display name changed
-            // 2. regenerate .cs .asmdef
-            context.PackageJsonModel.Apply();
-            AssetDatabase.Refresh();
+            var isDirty = context.PackageJsonModel.IsDirty;
+            _applyBtn.SetEnabled(isDirty);
+            _revertBtn.SetEnabled(isDirty);
         }
     }
 }

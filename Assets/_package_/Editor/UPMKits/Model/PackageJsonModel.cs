@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using DataBinding;
+using DataBinding.BindingExtensions;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using UnityEngine;
@@ -15,49 +16,18 @@ namespace UPMKits
     {
         public string type { get; set; }
         public string url { get; set; }
-
-        public void Copy(Repository repository)
-        {
-            type = repository.type;
-            url = repository.url;
-        }
-
-        public bool Compare(Repository repository)
-        {
-            return type != repository.type || url != repository.url;
-        }
     }
 
     [Serializable]
     public class Bugs
     {
         public string url { get; set; }
-
-        public void Copy(Bugs bugs)
-        {
-            url = bugs.url;
-        }
-
-        public bool Compare(Bugs bugs)
-        {
-            return url != bugs.url;
-        }
     }
 
     [Serializable]
     public class PublishConfig
     {
         public string registry { get; set; }
-
-        public void Copy(PublishConfig publishConfig)
-        {
-            registry = publishConfig.registry;
-        }
-
-        public bool Compare(PublishConfig publishConfig)
-        {
-            return registry != publishConfig.registry;
-        }
     }
 
     [Serializable]
@@ -65,19 +35,7 @@ namespace UPMKits
     {
         public string key { get; set; }
         public string value { get; set; }
-
-        public void Copy(Dependency dependency)
-        {
-            key = dependency.key;
-            value = dependency.value;
-        }
-
-        public bool Compare(Dependency dependency)
-        {
-            return key != dependency.key || value != dependency.value;
-        }
     }
-
 
     public class PackageJsonInfo
     {
@@ -96,7 +54,7 @@ namespace UPMKits
         public Dictionary<string, string> dependencies { get; set; }
 
         [JsonIgnore]
-        public List<Dependency> DependencyList; 
+        public List<Dependency> DependencyList;
 
         public PackageJsonInfo()
         {
@@ -105,102 +63,6 @@ namespace UPMKits
             repository = new Repository();
             bugs = new Bugs();
             publishConfig = new PublishConfig();
-        }
-
-        public void Copy(PackageJsonInfo info)
-        {
-            name = info.name;
-            displayName = info.displayName;
-            version = info.version;
-            unity = info.unity;
-            description = info.description;
-            type = info.type;
-            author = info.author;
-            license = info.license;
-            repository.Copy(info.repository);
-            bugs.Copy(info.bugs);
-            homepage = info.homepage;
-            publishConfig.Copy(info.publishConfig);
-            dependencies = new Dictionary<string, string>(info.dependencies);
-            DependencyList = new List<Dependency>(info.DependencyList);
-        }
-
-        public bool Compare(PackageJsonInfo info)
-        {
-            if (name != info.name)
-            {
-                return true;
-            }
-
-            if (displayName != info.displayName)
-            {
-                return true;
-            }
-
-            if (version != info.version)
-            {
-                return true;
-            }
-
-            if (unity != info.unity)
-            {
-                return true;
-            }
-
-            if (description != info.description)
-            {
-                return true;
-            }
-
-            if (type != info.type)
-            {
-                return true;
-            }
-
-            if (author != info.author)
-            {
-                return true;
-            }
-
-            if (license != info.license)
-            {
-                return true;
-            }
-
-            if (repository.Compare(info.repository))
-            {
-                return true;
-            }
-
-            if (bugs.Compare(info.bugs))
-            {
-                return true;
-            }
-
-            if (homepage != info.homepage)
-            {
-                return true;
-            }
-
-            if (publishConfig.Compare(info.publishConfig))
-            {
-                return true;
-            }
-
-            if (DependencyList.Count != info.DependencyList.Count)
-            {
-                return true;
-            }
-
-            for (var i = 0; i < info.DependencyList.Count; i++)
-            {
-                if (DependencyList[i].Compare(info.DependencyList[i]))
-                {
-                    return true;
-                }
-            }
-
-            return false;
         }
 
         public override string ToString()
@@ -228,31 +90,17 @@ namespace UPMKits
         }
     }
 
-/*
- * todo 关于UIElements和SerializedObject数据绑定的一些问题
- * 优点:
- *      UIElements和SerializedObject数据绑定可以很好的实现双向改变,通过修改组件,对应绑定值会得到修改,修改值则组件会更新变化
- *      绑定过程较为简单,只需要让数据类继承自ScriptableObject即可封装成SerializedObject进行绑定
- * 缺点:
- *      SerializedObject对于属性,字典等字段不能识别,故属性,字典是不能数据绑定的,这对于数据绑定的泛用性大打折扣
- *      UIElements和SerializedObject数据绑定当值发生变化时,缺乏消息通知机制,比如当值改变时,需要通知数据类设置脏标记,这一步就办不到
- *          如果将数据类字段设为属性,则可以在值改变set时进行处理,但SerializedObject不支持属性,故这个方式不可行
- *          使用RegisterValueChangedCallback监听组件变化,但触发回调时,值已经是最新值了,不能通过前后状态对他们进行判断
- *      SerializedObject绑定后,数据更新不是实时的,而是在下一帧进行更新
- */
-
     public class PackageJsonModel
     {
         public const string PackageJsonPath = "Assets/_package_/package.json";
 
         public string PackageJsonDirFullPath;
 
-        // private PackageJsonInfo _previousPackageJsonInfo;
         public PackageJsonInfo PackageJsonInfo { get; private set; }
 
         private UKDTContext Context;
 
-        public Action DirtyAction;
+        public Action<bool> DirtyAction;
 
         private bool _isDirty;
 
@@ -261,8 +109,8 @@ namespace UPMKits
             get { return _isDirty; }
             set
             {
-                DirtyAction?.Invoke();
                 _isDirty = value;
+                DirtyAction?.Invoke(_isDirty);
             }
         }
 

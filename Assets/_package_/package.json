@@ -13,9 +13,7 @@
     "type": "git",
     "url": "git+https://github.com/Chino66/UPM_Kits_Develop.git"
   },
-  "dependencies": {
-    "2": "1"
-  },
+  "dependencies": {},
   "author": "chino66",
   "license": "ISC",
   "bugs": {

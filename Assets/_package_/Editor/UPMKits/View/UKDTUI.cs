@@ -6,6 +6,7 @@ using UIElementsKits.UIFramework;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.UIElements;
+using UPMKits.State;
 
 namespace UPMKits
 {
@@ -46,117 +47,26 @@ namespace UPMKits
             AddView<EditorOperateView>();
             AddView<PackageOperateView>();
 
+            Context.StateMachine.AddCondition(new UECConfigStateCondition(Context));
+            Context.StateMachine.AddCondition(new NpmrcStateCondition(Context));
+            Context.StateMachine.AddCondition(new DeveloperStateCondition(Context));
+            Context.StateMachine.AddCondition(new PackageJsonStateCondition(Context));
+            
             RefreshState();
         }
 
-        /*private void BindingTest()
-        {
-            var _packageJson = Context.PackageJsonModel.PackageJsonInfo.Binding;
-            var root = new VisualElement();
-
-            var label = new Label();
-            label.text = Context.PackageJsonModel.PackageJsonInfo.name;
-            label.bindingPath = "name";
-            _packageJson.Bind(label);
-
-            var tf = new TextField();
-            tf.value = "777";
-            tf.bindingPath = "name";
-            _packageJson.Bind(tf);
-
-
-            var button = new Button();
-            button.text = "888";
-            button.clicked += () =>
-            {
-                Context.PackageJsonModel.PackageJsonInfo.name = "ssssssssss";
-
-                Debug.Log("button click");
-            };
-
-
-            root.Add(button);
-            root.Add(label);
-            root.Add(tf);
-
-
-            Add(root);
-        }*/
-
         private async void RefreshState()
         {
-            var hasConfig = Context.UECConfigModel.HasConfig();
-            if (hasConfig == false)
-            {
-                var hasInstall = await PackageUtils.HasPackageAsync("com.chino.github.unity.uec");
-                if (hasInstall)
-                {
-                    Context.StateMachine.ChangeState(UKDTState.ConfigUECTip, ".uecconfig not config, please");
-                    return;
-                }
-                else
-                {
-                    Context.StateMachine.ChangeState(UKDTState.InstallUECTip, ".uecconfig");
-                    return;
-                }
-            }
-
-
-            var hasNpmrc = Context.NpmrcModel.HasNpmrc();
-            if (hasNpmrc == false)
-            {
-                var hasInstall = await PackageUtils.HasPackageAsync("com.chino.github.unity.uec");
-                if (hasInstall)
-                {
-                    Context.StateMachine.ChangeState(UKDTState.ConfigUECTip, ".npmrc not config, please");
-                    return;
-                }
-                else
-                {
-                    Context.StateMachine.ChangeState(UKDTState.InstallUECTip, ".npmrc");
-                    return;
-                }
-            }
-
-            var hasDeveloper = Context.NpmrcModel.GetDeveloper() != "* None *";
-            if (hasDeveloper == false)
-            {
-                var hasInstall = await PackageUtils.HasPackageAsync("com.chino.github.unity.uec");
-                if (hasInstall)
-                {
-                    Context.StateMachine.ChangeState(UKDTState.ConfigUECTip, "no developer, please");
-                    return;
-                }
-                else
-                {
-                    Context.StateMachine.ChangeState(UKDTState.InstallUECTip, ".npmrc");
-                    return;
-                }
-            }
-
-            var hasPackageJson = Context.PackageJsonModel.HasPackageJson();
-            if (hasPackageJson == false)
-            {
-                Context.StateMachine.ChangeState(UKDTState.NoPackageJson);
-                return;
-            }
-
-            Context.StateMachine.ChangeState(UKDTState.EditorPackageJson);
-
-
-            // _noDeveloperTip.SetDisplay(!hasDeveloper);
-
-            // var has = hasConfig && context.PackageJsonModel.HasPackageJson() && hasDeveloper;
-            // _selectBtn.SetEnabled(has);
+            await Context.StateMachine.JudgeState();
         }
 
         public void Refresh()
         {
-            RefreshState();
-            GetView<DeveloperView>().Refresh();
-            GetView<PackageEditorView>().Refresh();
-            GetView<EditorOperateView>().Refresh();
-            GetView<PackageOperateView>().Refresh();
+            // RefreshState();
+            // GetView<DeveloperView>().Refresh();
+            // GetView<PackageEditorView>().Refresh();
+            // GetView<EditorOperateView>().Refresh();
+            // GetView<PackageOperateView>().Refresh();
         }
     }
 }

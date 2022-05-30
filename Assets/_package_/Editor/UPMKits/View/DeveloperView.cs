@@ -54,10 +54,12 @@ namespace UPMKits
             group.AddState(UKDTState.ConfigUECTip);
 
             stateHandler.AddStateGroupAction(group, (args) => { Self.SetDisplay(false); });
-            stateHandler.AddOtherStateAction((args) => { Self.SetDisplay(true); });
+            stateHandler.AddOtherStateAction((args) =>
+            {
+                Self.SetDisplay(true);
+                Refresh();
+            });
             _stateMachine.AddHandler(stateHandler);
-
-            Refresh();
         }
 
         public void Refresh()

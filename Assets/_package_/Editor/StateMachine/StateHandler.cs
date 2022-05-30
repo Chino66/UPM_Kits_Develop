@@ -90,6 +90,11 @@ namespace StateMachineKits
         {
             if (_stateWhereInGroups.TryGetValue(state, out var groups) == false)
             {
+                if (state == OtherState)
+                {
+                    return;
+                }
+
                 // Debug.LogError($"no state {state}");
                 ExecuteOtherState(args);
                 return;
