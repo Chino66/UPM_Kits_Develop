@@ -1,8 +1,10 @@
 {
   "dependencies": {
-    "com.chino.command.tool": "file:G:/UnityProject/Command_Tool_Develop/Assets/_package_",
-    "com.chino.object.pool": "file:G:/UnityProject/Object_Pool_Develop/Assets/_package_",
-    "com.chino.task.kits": "file:G:/UnityProject/Task_Kits_Develop/Assets/_package_",
+    "com.chino.command.tool": "0.0.1",
+    "com.chino.data.binding": "0.0.1",
+    "com.chino.object.pool": "0.0.2",
+    "com.chino.package.kits": "0.0.1",
+    "com.chino.task.kits": "0.0.1",
     "com.chino.uielements.kits": "file:G:/UnityProject/UIElements_Kits_Develop/Assets/_package_",
     "com.unity.collab-proxy": "1.5.7",
     "com.unity.ide.rider": "2.0.7",
@@ -44,5 +46,15 @@
     "com.unity.modules.vr": "1.0.0",
     "com.unity.modules.wind": "1.0.0",
     "com.unity.modules.xr": "1.0.0"
-  }
+  },
+  "scopedRegistries": [
+    {
+      "tag": "uecconfig",
+      "url": "https://npm.pkg.github.com/@chino66",
+      "name": "chino66",
+      "scopes": [
+        "com.chino"
+      ]
+    }
+  ]
 }

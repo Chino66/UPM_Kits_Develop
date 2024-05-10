@@ -1,11 +1,6 @@
-using System.IO;
 using StateMachineKits;
 using UIElementsKits;
-using UIElementsKits.UIFramework;
 using UnityEditor;
-using UnityEditor.UIElements;
-using UnityEngine;
-using UnityEngine.UI;
 using UnityEngine.UIElements;
 using Button = UnityEngine.UIElements.Button;
 
@@ -55,7 +50,7 @@ namespace UPMKits
                     Refresh();
                 });
             UI.Context.StateMachine.AddHandler(stateHandler);
-            
+
             Self.SetDisplay(false);
         }
 

@@ -16,6 +16,8 @@ namespace UPMKits
          *       _generate_
          *         PackagePath.cs
          *       {PackageName}.Editor.asmdef
+         *     Runtime
+         *       {PackageName}.Runtime.asmdef
          *     CHANGELOG.md
          *     package.json
          *     README.md
@@ -23,12 +25,13 @@ namespace UPMKits
 
 
         // public const string PackageDirPath = "Assets/_package_";
-        // public const string EditorDirPath = "Assets/_package_/Editor";
+        
         // public const string GenerateDirPath = "Assets/_package_/Editor/_generate_";
         // public const string ResourcesDirPath = "Assets/_package_/Resources";
-        // public const string RuntimeDirPath = "Assets/_package_/Runtime";
-
-
+        
+        public const string EditorDirPath = "Assets/_package_/Editor";
+        public const string RuntimeDirPath = "Assets/_package_/Runtime";
+        
         public const string PackageJsonPath = "Assets/_package_/package.json";
         public const string PackagePathCsPath = "Assets/_package_/Editor/_generate_/PackagePath.cs";
         public const string ChangeLogMdPath = "Assets/_package_/CHANGELOG.md";
@@ -36,9 +39,13 @@ namespace UPMKits
 
         public static void Generate()
         {
+            CreateDirectory(EditorDirPath);
+            CreateDirectory(RuntimeDirPath);
+
             CreateFile(PackageJsonPath);
             CreateFile(ChangeLogMdPath);
             CreateFile(ReadmeMdPath);
+            
         }
 
 

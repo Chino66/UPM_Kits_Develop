@@ -1,10 +1,7 @@
 using System.IO;
-using DataBinding;
 using PackageKits;
 using UIElementsKits;
-using UIElementsKits.UIFramework;
 using UnityEditor;
-using UnityEngine;
 using UnityEngine.UIElements;
 using UPMKits.State;
 
@@ -41,6 +38,16 @@ namespace UPMKits
             AddStyleSheet(styleSheet);
             Add(temp);
 
+            InitAsync();
+        }
+
+        private async void InitAsync()
+        {
+            await PackageUtils.ListPackageAsync((rst, dic) =>
+            {
+                Context.PackageModel.PackageInfos = dic;
+            });
+
             AddView<CheckView>();
             AddView<DeveloperView>();
             AddView<PackageEditorView>();
@@ -51,9 +58,10 @@ namespace UPMKits
             Context.StateMachine.AddCondition(new NpmrcStateCondition(Context));
             Context.StateMachine.AddCondition(new DeveloperStateCondition(Context));
             Context.StateMachine.AddCondition(new PackageJsonStateCondition(Context));
-            
+
             RefreshState();
         }
+
 
         private async void RefreshState()
         {

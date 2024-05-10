@@ -1,4 +1,5 @@
 using System.Text.RegularExpressions;
+using System.Threading.Tasks;
 using CommandTool;
 using UnityEngine;
 
@@ -17,21 +18,21 @@ namespace UPMKits
 
         public GitRepositoryModel()
         {
-            _repositoryUrl = GetRepositoryUrl();
+            GetRepositoryUrl();
         }
 
-        public string GetRepositoryUrl()
+        private async Task GetRepositoryUrl()
         {
             if (string.IsNullOrEmpty(_repositoryUrl) == false)
             {
-                return _repositoryUrl;
+                return;
             }
 
-            Command.RunAsync("git config --get remote.origin.url", msgs =>
+            await Command.RunAsync("git config --get remote.origin.url", msgs =>
             {
                 var ret = msgs.Messages.Dequeue();
 
-                Match match = Regex.Match(ret, Pattern);
+                var match = Regex.Match(ret, Pattern);
                 if (match.Success)
                 {
                     _repositoryUrl = match.Value;
@@ -44,11 +45,7 @@ namespace UPMKits
                 {
                     _repositoryUrl = "";
                 }
-
-                // Debug.Log($"git path is {_repositoryUrl}, repository name is {_repositoryName}");
             });
-
-            return _repositoryUrl;
         }
     }
 }

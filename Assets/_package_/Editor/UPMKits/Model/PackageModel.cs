@@ -3,6 +3,7 @@ using System.Threading.Tasks;
 using CommandTool;
 using GithubKits;
 using NPMKits;
+using UnityEditor.PackageManager;
 using UnityEngine;
 using UnityEngine.UIElements;
 
@@ -14,11 +15,52 @@ namespace UPMKits
 
         public PackageOverview Overview;
 
+        private Dictionary<string, PackageInfo> _packageInfos;
+
+        public Dictionary<string, PackageInfo> PackageInfos
+        {
+            get { return _packageInfos; }
+
+            set
+            {
+                PackageNames ??= new List<string>();
+                PackageNames.Clear();
+                PackageVersions ??= new Dictionary<string, List<string>>();
+                PackageVersions.Clear();
+
+                _packageInfos = value;
+                PackageNames.Add("-");
+                foreach (var pair in _packageInfos)
+                {
+                    PackageNames.Add(pair.Key);
+                    var info = pair.Value;
+                    var list = new List<string>();
+                    PackageVersions.Add(pair.Key, list);
+
+                    for (var i = 0; i < info.versions.all.Length; i++)
+                    {
+                        list.Add(info.versions.all[i]);
+                    }
+                    list.Add("-");
+                    list.Reverse();
+                }
+            }
+        }
+
+        public List<string> PackageNames { get; private set; }
+        public Dictionary<string, List<string>> PackageVersions { get; private set; }
+
         public PackageModel(UKDTContext context)
         {
             _context = context;
 
             GetPackageVersions();
+        }
+
+        public List<string> GetVersionViaName(string packageName)
+        {
+            PackageVersions.TryGetValue(packageName, out var versions);
+            return versions;
         }
 
         public async Task GetPackageVersions()

@@ -107,7 +107,6 @@ namespace StateMachineKits
                     continue;
                 }
 
-                Debug.Log($"{groupName}, {state}");
                 foreach (var action in actions)
                 {
                     action?.Invoke(args);
