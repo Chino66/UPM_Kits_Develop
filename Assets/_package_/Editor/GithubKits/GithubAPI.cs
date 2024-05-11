@@ -201,13 +201,32 @@ namespace GithubKits
                     Name = packageName
                 };
                 var versions = overview.Versions;
-                versions.AddRange(jArray.Children().Select(child => new PackageVersion
+
+                try
                 {
-                    Id = child["id"].ToString(),
-                    Version = child["name"].ToString(),
-                    Description = child["description"].ToString(),
-                    HtmlUrl = child["html_url"].ToString()
-                }));
+                    versions.AddRange(jArray.Children().Select(child =>
+                    {
+                        var packageVersion = new PackageVersion
+                        {
+                            Id = child["id"].ToString(),
+                            HtmlUrl = child["html_url"].ToString()
+                        };
+
+                        if (child["name"] != null)
+                        {
+                            packageVersion.Version = child["name"].ToString();
+                        }
+                        if (child["description"] != null)
+                        {
+                            packageVersion.Description = child["description"].ToString();
+                        }
+                        return  packageVersion;
+                    }));
+                }
+                catch (Exception e)
+                {
+                    throw new Exception(e.Message);
+                }
 
                 callback?.Invoke(overview);
             });

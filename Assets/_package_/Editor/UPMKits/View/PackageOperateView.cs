@@ -1,4 +1,5 @@
 using System.IO;
+using System.Threading.Tasks;
 using GithubKits;
 using UIElementsKits;
 using UnityEditor;
@@ -90,7 +91,12 @@ namespace UPMKits
             return content;
         }
 
-        private async void RefreshVersions()
+        private void RefreshVersions()
+        {
+            RefreshVersionsAsync();
+        }
+
+        private async Task RefreshVersionsAsync()
         {
             RefreshVersionsBtn(true);
 

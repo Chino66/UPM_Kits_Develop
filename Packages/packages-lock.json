@@ -38,10 +38,11 @@
       "url": "https://npm.pkg.github.com/@chino66"
     },
     "com.chino.uielements.kits": {
-      "version": "file:G:/UnityProject/UIElements_Kits_Develop/Assets/_package_",
+      "version": "0.0.6",
       "depth": 0,
-      "source": "local",
-      "dependencies": {}
+      "source": "registry",
+      "dependencies": {},
+      "url": "https://npm.pkg.github.com/@chino66"
     },
     "com.unity.collab-proxy": {
       "version": "1.5.7",
@@ -60,11 +61,11 @@
       "url": "https://packages.unity.com"
     },
     "com.unity.ide.rider": {
-      "version": "2.0.7",
+      "version": "3.0.28",
       "depth": 0,
       "source": "registry",
       "dependencies": {
-        "com.unity.test-framework": "1.1.1"
+        "com.unity.ext.nunit": "1.0.6"
       },
       "url": "https://packages.unity.com"
     },
